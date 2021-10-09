@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutterwhatsapp/pages/broadcast.dart';
 import 'package:flutterwhatsapp/pages/store_page_view.dart';
+import 'package:flutterwhatsapp/widgets.dart';
 
 class StatusScreen extends StatelessWidget {
   @override
@@ -9,51 +11,56 @@ class StatusScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Card(
-            color: Colors.white,
-            elevation: 0.0,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                leading: Stack(
-                  children: <Widget>[
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.deepPurple,
-                      // backgroundImage: NetworkImage(
-                      //     "https://s3.amazonaws.com/wll-community-production/images/no-avatar.png"),
-                    ),
-                    Positioned(
-                      bottom: 0.0,
-                      right: 1.0,
-                      child: Container(
-                        height: 20,
-                        width: 20,
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 15,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
+          GestureDetector(
+            onTap: () {
+              aPushTo(context, BroadcastScreen());
+            },
+            child: Card(
+              color: Colors.white,
+              elevation: 0.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListTile(
+                  leading: Stack(
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.deepPurple,
+                        // backgroundImage: NetworkImage(
+                        //     "https://s3.amazonaws.com/wll-community-production/images/no-avatar.png"),
                       ),
-                    )
-                  ],
+                      Positioned(
+                        bottom: 0.0,
+                        right: 1.0,
+                        child: Container(
+                          height: 20,
+                          width: 20,
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  title: Text(
+                    "Your Groups",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text("Tap to Create a New Group"),
                 ),
-                title: Text(
-                  "My Status",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text("Tap to add status update"),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Viewed updates",
+              "Groups Available",
               style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
             ),
           ),
