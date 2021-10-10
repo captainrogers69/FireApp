@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/pages/chat_screen.dart';
-import 'package:flutterwhatsapp/pages/login.dart';
  
 //home screen
 
@@ -10,12 +9,38 @@ class CallsScreen extends StatefulWidget {
   @override
   _CallsScreenState createState() => _CallsScreenState();
 }
-
-class _CallsScreenState extends State<CallsScreen> {
+// with WidgetsBindingObserver
+class _CallsScreenState extends State<CallsScreen>  {
   bool isloading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, dynamic> userMap;
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addObserver(this);
+  //   setStatus("Online");
+  // }
+
+  // void setStatus(String status) async {
+
+  //   await _firestore.collection('users').doc(_auth.currentUser.uid).update({
+  //     "status": status,});
+  // }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+    
+  //   if(state == AppLifecycleState.resumed) {
+  //     //online
+  //     setStatus("online");
+  //   }else{
+  //     //offline
+  //     setStatus("offline");
+  //   }
+  // }
 
   String chatRoomId(String user1, user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
@@ -50,16 +75,6 @@ class _CallsScreenState extends State<CallsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginPage()));
-        },
-        backgroundColor: Colors.deepOrange,
-        child: Icon(
-          Icons.add_ic_call,
-        ),
-      ),
       body: isloading
           ? Center(
               child: Container(

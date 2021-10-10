@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/pages/call_screen.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
 import 'package:flutterwhatsapp/pages/status_screen.dart';
+import 'package:flutterwhatsapp/pages/user.dart';
 
 class WhatsAppHome extends StatefulWidget {
   // const WhatsAppHome({ Key key }) : super(key: key);
@@ -52,7 +53,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
               text: "GROUPS",
             ),
             Tab(
-              text: "CALLS",
+              text: "SEARCH",
             ),
           ],
         ),
@@ -129,6 +130,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
           // ChatScreen(),
           StatusScreen(),
           CallsScreen(),
+          UserScreen(),
         ],
       ),
     );

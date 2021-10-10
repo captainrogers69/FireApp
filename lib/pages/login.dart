@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/whatsapp_home.dart';
 import 'package:flutterwhatsapp/widgets.dart';
 
@@ -86,16 +87,29 @@ class _LoginPageState extends State<LoginPage> {
                         if (user != null) {
                           user.updateDisplayName("name");
 
-                          await _firestore.collection('users').add({
-                            "name": "name",
-                            "number": phone,
-                            "status": "offline",
-                          });
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => WhatsAppHome()));
+                          final userInCollection = await _firestore
+                              .collection('users')
+                              .where("uid", isEqualTo: user.uid)
+                              .get();
+
+                          if (userInCollection.docs.isEmpty) {
+                            await _firestore.collection('users').add({
+                              "id": user.uid,
+                              "name": "name",
+                              "number": phone,
+                              "status": "offline",
+                            });
+                           
+                          }else{
+                            Fluttertoast.showToast(msg: "404 Not Found!");
+                          }
+
+                           Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => WhatsAppHome()));
                         } else {
+                          
                           print("Error");
                         }
                       },
