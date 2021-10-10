@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/pages/call_screen.dart';
-import 'package:flutterwhatsapp/pages/chat_screen.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
 import 'package:flutterwhatsapp/pages/status_screen.dart';
 
@@ -14,7 +13,7 @@ class WhatsAppHome extends StatefulWidget {
 
 class _WhatsAppHomeState extends State<WhatsAppHome>
     with SingleTickerProviderStateMixin {
-
+  final _auth = FirebaseAuth.instance;
   // final User user;
   // WhatsAppHome({this.user});
   TabController _tabController;
@@ -24,7 +23,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
   void initState() {
     super.initState();
 
-    _tabController = TabController(vsync: this, initialIndex: 1, length: 3);
+    _tabController = TabController(vsync: this, initialIndex: 1, length: 2);
     _tabController.addListener(() {
       if (_tabController.index == 1) {
         showFab = true;
@@ -46,9 +45,9 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
           controller: _tabController,
           indicatorColor: Colors.white,
           tabs: <Widget>[
-            Tab(
-              text: "CHATS",
-            ),
+            // Tab(
+            //   text: "CHATS",
+            // ),
             Tab(
               text: "GROUPS",
             ),
@@ -99,8 +98,13 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
                                     child: Text("Cancel"),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                                    onPressed: () async {
+                                      await _auth.signOut();
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LoginPage()));
                                     },
                                     child: Text("Log Out"),
                                   ),
@@ -122,8 +126,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          ChatScreen(),
-          // Text("${user.phoneNumber}"),
+          // ChatScreen(),
           StatusScreen(),
           CallsScreen(),
         ],
@@ -131,4 +134,3 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
     );
   }
 }
-  

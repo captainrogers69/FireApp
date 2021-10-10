@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/pages/broadcast.dart';
-import 'package:flutterwhatsapp/pages/store_page_view.dart';
 import 'package:flutterwhatsapp/widgets.dart';
 
 class StatusScreen extends StatelessWidget {
@@ -82,10 +81,11 @@ class StatusScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text("Today, 20:16 PM"),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => StoryPageView())),
+                    onTap: () {} 
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => StoryPageView())),
                   ),
                 ],
               ),
