@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/general_providers.dart';
-import 'package:flutterwhatsapp/whatsapp_home.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 abstract class BaseAuthenticationService {
@@ -43,11 +42,9 @@ class AuthenticationService implements BaseAuthenticationService {
         User user = result.user;
 
         if (user != null) {
-          user.updateDisplayName("name");
-
           final userInCollection = await _read(firestoreProvider)
               .collection('users')
-              .where("uid", isEqualTo: user.uid)
+              .where("id", isEqualTo: user.uid)
               .get();
 
           if (userInCollection.docs.isEmpty) {
@@ -59,9 +56,6 @@ class AuthenticationService implements BaseAuthenticationService {
           } else {
             Fluttertoast.showToast(msg: "Account Created");
           }
-
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => WhatsAppHome()));
         } else {
           print("Error");
         }
@@ -102,11 +96,9 @@ class AuthenticationService implements BaseAuthenticationService {
                       User user = result.user;
 
                       if (user != null) {
-                        user.updateDisplayName("name");
-
                         final userInCollection = await _read(firestoreProvider)
                             .collection('users')
-                            .where("uid", isEqualTo: user.uid)
+                            .where("id", isEqualTo: user.uid)
                             .get();
 
                         if (userInCollection.docs.isEmpty) {
@@ -117,14 +109,11 @@ class AuthenticationService implements BaseAuthenticationService {
                             "number": phone,
                             "status": "offline",
                           });
+
+                          Navigator.pop(context);
                         } else {
                           Fluttertoast.showToast(msg: "Account Created");
                         }
-
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => WhatsAppHome()));
                       } else {
                         print("Error");
                       }
