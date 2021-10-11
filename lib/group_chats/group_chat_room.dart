@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/group_info.dart';
 
 class GroupChatRoom extends StatelessWidget {
-  final String groupChatId, groupName;
+  final String groupChatId, groupName, message;
 
-  GroupChatRoom({@required this.groupName, @required this.groupChatId, Key key})
+  GroupChatRoom({@required this.groupName, @required this.groupChatId, @required this.message, Key key})
       : super(key: key);
 
   final TextEditingController _message = TextEditingController();
@@ -61,7 +61,7 @@ class GroupChatRoom extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: [
+          children: [ Text(message),
             Container(
               height: size.height / 1.27,
               width: size.width,

@@ -18,7 +18,7 @@ class WhatsAppHome extends HookWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
-          title: Text("FireApp"),
+          title: Text("KiyaKonnect"),
           automaticallyImplyLeading: false,
           elevation: 0.7,
           bottom: TabBar(

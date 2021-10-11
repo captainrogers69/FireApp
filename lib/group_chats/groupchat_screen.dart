@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/create%20group/add_members.dart';
 import 'package:flutterwhatsapp/group_chats/group_chat_room.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutterwhatsapp/general_providers.dart';
 
 class GroupChatHomeScreen extends StatefulWidget {
   const GroupChatHomeScreen({Key key}) : super(key: key);
@@ -45,45 +47,59 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
-        title: Text("Groups"),
-      ),
-      body: isLoading
-          ? Container(
-              height: size.height,
-              width: size.width,
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: groupList.length,
-              itemBuilder: (context, index) {
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.create),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => AddMembersInGroup(),
+            ),
+          ),
+          tooltip: "Create Group",
+        ),
+        appBar: AppBar(
+          backgroundColor: Colors.lightBlue,
+          title: Text("Groups Available"),
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: context
+              .read(firestoreProvider)
+              .collection('groups')
+              .doc(_auth.currentUser.uid)
+              .collection('chats')
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Text("Loading");
+            }
+
+            return ListView(
+              children: snapshot.data.docs.map((DocumentSnapshot document) {
+                Map<String, dynamic> data =
+                    document.data() as Map<String, dynamic>;
                 return ListTile(
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => GroupChatRoom(
-                  groupName: groupList[index]['groupname'],
-                  groupChatId: groupList[index]['id'],
+                        message: data['message'],
+                  groupName: data['groupname'],
+                  groupChatId: data['id'],
                   ),
                   ),
                   ),
-                  leading: Icon(Icons.group),
-                  title: Text(groupList[index]['groupname']),
-                  subtitle: Text(groupList[index]['type']),
+                  leading: Icon(Icons.verified_user,),
+                  title: Text(data['groupname']),
+                  subtitle: Text(data['type']),
+                  trailing: Icon(Icons.chat,),
                 );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => AddMembersInGroup(),
-          ),
-        ),
-        tooltip: "Create Group",
-      ),
-    );
+              }).toList(),
+            ); 
+          },
+        ));
   }
 }
 
