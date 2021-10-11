@@ -1,8 +1,9 @@
+import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
+import 'package:flutterwhatsapp/pages/home_screen.dart';
 import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutterwhatsapp/pages/call_screen.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
 import 'package:flutterwhatsapp/pages/status_screen.dart';
 import 'package:flutterwhatsapp/pages/user.dart';
@@ -25,10 +26,10 @@ class WhatsAppHome extends HookWidget {
             indicatorColor: Colors.white,
             tabs: <Widget>[
               Tab(
-                text: "CHATS",
+                text: "ACTIVE",
               ),
               Tab(
-                text: "GROUPS",
+                text: "HOME",
               ),
               Tab(
                 text: "USERS",
@@ -43,9 +44,13 @@ class WhatsAppHome extends HookWidget {
               ),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => GroupChatHomeScreen(),
+                ),
+              ),
               icon: Icon(
-                Icons.group_add,
+                Icons.group,
               ),
             ),
             IconButton(
@@ -109,7 +114,7 @@ class WhatsAppHome extends HookWidget {
           children: <Widget>[
             // ChatScreen(),
             StatusScreen(),
-            CallsScreen(),
+            HomeScreen(),
             UserScreen(),
           ],
         ),

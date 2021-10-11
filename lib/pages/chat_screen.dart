@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ChatRoom extends StatelessWidget {
+class ChatRoom extends HookWidget {
   final Map<String, dynamic> userMap;
   final String chatRoomId;
 
@@ -14,98 +18,136 @@ class ChatRoom extends StatelessWidget {
 
   void onSendMessage() async {
     if (_message.text.isNotEmpty) {
-      Map<String, dynamic> message = {
-        "sendby": _auth.currentUser.phoneNumber,
+      Map<String, dynamic> messages = {
+        "sendby": _auth.currentUser.displayName,
         // "status": "offline",
         "message": _message.text,
         "time": FieldValue.serverTimestamp()
       };
 
+      _message.clear();
       await _firestore
           .collection('chatroom')
           .doc(chatRoomId)
           .collection('chats')
-          .add(message)
-          .then((value) => _message.clear());
+          .add(messages);
     } else {
       print("Enter Some Text");
+      Fluttertoast.showToast(msg: "404! Task incomplete");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authControllerState = useProvider(authControllerProvider);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
+        title: Text(authControllerState.displayName),
+// StreamBuilder<DocumentSnapshot>(
+//           stream:
+//               _firestore.collection("users").doc(userMap['uid']).snapshots(),
+//           builder: (context, snapshot) {
+//             if (snapshot.data != null) {
+//               return Container(
+//                 child: Column(
+//                   children: [
+//                     Text(userMap['name']),
+//                     Text(
+//                       snapshot.data!['status'],
+//                       style: TextStyle(fontSize: 14),
+//                     ),
+//                   ],
+//                 ),
+//               );
+//             } else {
+//               return Container();
+//             }
+//           },
+//         ),
       ),
       body: SingleChildScrollView(
-          child: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 1.25,
-            width: MediaQuery.of(context).size.width,
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore
-                  .collection('chatroom')
-                  .doc(chatRoomId)
-                  .collection('chats')
-                  .orderBy("time", descending: false)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.data != null) {
-                  return ListView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> map =
-                            snapshot.data.docs[index].data();
-                        return messages(context, map);
-                      });
-                } else {
-                  return Container();
-                }
-              },
+        child: Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height / 1.25,
+              width: MediaQuery.of(context).size.width,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection('chatroom')
+                    .doc(chatRoomId)
+                    .collection('chats')
+                    .orderBy("time", descending: false)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.data != null) {
+                    return ListView.builder(
+                        itemCount: snapshot.data.docs.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> map =
+                              snapshot.data.docs[index].data();
+                          return messages(context, map);
+                        });
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
             ),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height / 10,
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.center,
-            child: Container(
-              height: MediaQuery.of(context).size.height / 12,
-              width: MediaQuery.of(context).size.width / 1.1,
-              child: Row(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height / 12,
-                    width: MediaQuery.of(context).size.width / 1.5,
-                    child: TextField(
-                      controller: _message,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+            Container(
+              height: MediaQuery.of(context).size.height / 10,
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.center,
+              child: Container(
+                height: MediaQuery.of(context).size.height / 12,
+                width: MediaQuery.of(context).size.width / 1.1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height / 12,
+                      width: MediaQuery.of(context).size.width / 1.3,
+                      child: TextField(
+                        controller: _message,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: onSendMessage,
-                    icon: Icon(
-                      Icons.send,
+                    Container(
+                      height: MediaQuery.of(context).size.height / 14,
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: IconButton(
+                        onPressed: onSendMessage,
+                        icon: Icon(
+                          Icons.send,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    // ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
       // bottomNavigationBar:
     );
   }
 
   Widget messages(BuildContext context, Map<String, dynamic> map) {
     return Container(
+        padding: EdgeInsets.only(
+          top: 3,
+          right: 3,
+        ),
         width: MediaQuery.of(context).size.width,
         alignment: map['sendby'] == _auth.currentUser.displayName
             ? Alignment.centerLeft
