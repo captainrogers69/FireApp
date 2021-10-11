@@ -29,7 +29,7 @@ class UserPageWidget extends StatelessWidget {
               10.0,
             ),
             child: Text(
-              text,
+              text ?? "Username",
               style: TextStyle(color: Color(0xff00cd7b)),
             ),
           ),
