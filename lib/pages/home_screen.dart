@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/chat_screen.dart';
  
 //home screen
 
-class CallsScreen extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _CallsScreenState createState() => _CallsScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 // with WidgetsBindingObserver
-class _CallsScreenState extends State<CallsScreen>  {
+class _HomeScreenState extends State<HomeScreen>  {
   bool isloading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -78,10 +79,8 @@ class _CallsScreenState extends State<CallsScreen>  {
       body: isloading
           ? Center(
               child: Container(
-                height: 100,
-                width: 100,
-                // height: MediaQuery.of(context).size.height,
-                // width: MediaQuery.of(context).size.width,
+                height: 50,
+                width: 50,
                 child: CircularProgressIndicator(),
               ),
             )
@@ -92,7 +91,7 @@ class _CallsScreenState extends State<CallsScreen>  {
                     child: TextField(
                       controller: _search,
                       decoration: InputDecoration(
-                        hintText: "Search",
+                        hintText: "Search Users(admin)",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -128,6 +127,14 @@ class _CallsScreenState extends State<CallsScreen>  {
                 : Container(),
               ],
             ),
+    floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.group),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => GroupChatHomeScreen(),
+          ),
+        ),
+      ),
     );
   }
 }

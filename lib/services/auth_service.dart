@@ -80,6 +80,7 @@ class AuthenticationService implements BaseAuthenticationService {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     TextField(
+                      keyboardType: TextInputType.phone,
                       controller: _codeController,
                     ),
                   ],

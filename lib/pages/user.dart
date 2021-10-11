@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+import 'package:flutterwhatsapp/pages/login.dart';
+import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:flutterwhatsapp/widgets/user_edit_bottom_sheet.dart';
 import 'package:flutterwhatsapp/widgets/user_page_widget.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -11,7 +13,7 @@ class UserScreen extends HookWidget {
     final authControllerState = useProvider(authControllerProvider);
 
     return Container(
-      color: Color(0xff181c18),
+      color: Colors.white,
       child: Center(
         child: ListView(
           padding: EdgeInsets.only(top: 5),
@@ -36,8 +38,9 @@ class UserScreen extends HookWidget {
                 onPressed: () {
                   showModalBottomSheet(
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(25)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(25),
+                        ),
                       ),
                       clipBehavior: Clip.antiAliasWithSaveLayer,
                       context: context,
@@ -47,6 +50,80 @@ class UserScreen extends HookWidget {
                 },
               ),
             ),
+            UserPageWidget(
+              text: "Logged In",
+              actionWidget: IconButton(
+                icon: Icon(
+                  Icons.logout,
+                  color: Color(0xff00cd7b),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return SimpleDialog(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Log Out Confirm ?",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Cancel"),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        await context
+                                            .read(authenticationServiceProvider)
+                                            .signOut();
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPage()));
+                                      },
+                                      child: Text("Log Out"),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    });
+                },
+              ),
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(
+            //     vertical: 8,
+            //     horizontal: 30,
+            //   ),
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       color: Colors.lightBlue,
+            //       borderRadius: BorderRadius.circular(10),
+            //     ),
+            //     width: MediaQuery.of(context).size.width,
+            //     height: 50,
+            //     child: Center(child: Text("User Logged In")),
+            //   ),
+            // )
           ],
         ),
       ),
