@@ -23,7 +23,7 @@ class UserScreen extends HookWidget {
               actionWidget: IconButton(
                 icon: Icon(
                   Icons.phone,
-                  color: Color(0xff00cd7b),
+                  color: Colors.white,
                 ),
                 onPressed: () {},
               ),
@@ -33,7 +33,7 @@ class UserScreen extends HookWidget {
               actionWidget: IconButton(
                 icon: Icon(
                   Icons.edit,
-                  color: Color(0xff00cd7b),
+                  color: Colors.white,
                 ),
                 onPressed: () {
                   showModalBottomSheet(
@@ -55,7 +55,7 @@ class UserScreen extends HookWidget {
               actionWidget: IconButton(
                 icon: Icon(
                   Icons.logout,
-                  color: Color(0xff00cd7b),
+                  color: Colors.white,
                 ),
                 onPressed: () {
                   showDialog(

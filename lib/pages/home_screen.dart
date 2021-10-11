@@ -3,15 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/chat_screen.dart';
- 
+
 //home screen
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
+
 // with WidgetsBindingObserver
-class _HomeScreenState extends State<HomeScreen>  {
+class _HomeScreenState extends State<HomeScreen> {
   bool isloading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen>  {
 
   // @override
   // void didChangeAppLifecycleState(AppLifecycleState state) {
-    
+
   //   if(state == AppLifecycleState.resumed) {
   //     //online
   //     setStatus("online");
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen>  {
 
   String chatRoomId(String user1, user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
-    user2.toLowerCase().codeUnits[0]) {
+        user2.toLowerCase().codeUnits[0]) {
       return "$user1$user2";
     } else {
       return "$user2$user1";
@@ -63,14 +64,13 @@ class _HomeScreenState extends State<HomeScreen>  {
         .collection('users')
         .where("number", isEqualTo: _search.text)
         .get()
-        .then((value)  {
-          setState(() {
-            userMap = (value).docs[0].data();
-            isloading = false;
-          });
-        print(userMap);       
-        });
-
+        .then((value) {
+      setState(() {
+        userMap = (value).docs[0].data();
+        isloading = false;
+      });
+      print(userMap);
+    });
   }
 
   @override
@@ -87,47 +87,50 @@ class _HomeScreenState extends State<HomeScreen>  {
           : Column(
               children: [
                 Container(
-                    padding: EdgeInsets.all(15),
-                    child: TextField(
-                      controller: _search,
-                      decoration: InputDecoration(
-                        hintText: "Search Users(admin)",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                  padding: EdgeInsets.all(15),
+                  child: TextField(
+                    controller: _search,
+                    decoration: InputDecoration(
+                      hintText: "Search Users(admin)",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    )),
+                    ),
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: onSearch,
                   child: Text(
                     "search",
                   ),
                 ),
-                userMap != null ? ListTile(
-                  onTap: () {
+                userMap != null
+                    ? ListTile(
+                        onTap: () {
+                          String roomId = chatRoomId(
+                            _auth.currentUser.phoneNumber,
+                            // userMap['status'],
+                            userMap['number'],
+                          );
 
-                    String roomId = chatRoomId(
-                      _auth.currentUser.phoneNumber,
-                      // userMap['status'],
-                      userMap['number'],
-                      
-                    );
-
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ChatRoom(
-                        chatRoomId: roomId ,
-                        userMap: userMap,
-                        ),),);
-                  },
-                  leading: Icon(Icons.verified_user),
-                  title: Text(userMap['number']),
-                  subtitle: Text("Name here"),
-                  trailing: Icon(Icons.chat),
-                ) 
-                : Container(),
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ChatRoom(
+                                chatRoomId: roomId,
+                                userMap: userMap,
+                              ),
+                            ),
+                          );
+                        },
+                        leading: Icon(Icons.verified_user),
+                        title: Text(userMap['number']),
+                        subtitle: Text("Name here"),
+                        trailing: Icon(Icons.chat),
+                      )
+                    : Container(),
               ],
             ),
-    floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         child: Icon(Icons.group),
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(

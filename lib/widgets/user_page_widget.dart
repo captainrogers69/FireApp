@@ -12,13 +12,16 @@ class UserPageWidget extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: size.width,
-      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+      margin: EdgeInsets.symmetric(
+        horizontal: 30,
+        vertical: 5,
+      ),
       padding: EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: Colors.deepPurple,
+        color: Colors.lightBlue,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -30,7 +33,10 @@ class UserPageWidget extends StatelessWidget {
             ),
             child: Text(
               text,
-              style: TextStyle(color: Color(0xff00cd7b)),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           actionWidget,
