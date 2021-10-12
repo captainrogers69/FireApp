@@ -44,7 +44,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    // final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -93,7 +93,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                   ),
                   leading: Icon(Icons.verified_user,),
                   title: Text(data['groupname']),
-                  subtitle: Text(data['type']),
+                  subtitle: Text(data['grpdetail']),
                   trailing: Icon(Icons.chat,),
                 );
               }).toList(),

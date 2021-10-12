@@ -30,9 +30,10 @@ class _GroupInfoState extends State<GroupInfo> {
   }
 
   Future getGroupDetails() async {
+    String uid = _auth.currentUser.uid;
     await _firestore
         .collection('groups')
-        .doc(widget.groupId)
+        .doc(uid)
         .get()
         .then((chatMap) {
       membersList = chatMap['members'];
@@ -128,8 +129,11 @@ class _GroupInfoState extends State<GroupInfo> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.lightBlue,
+        title: Text("Group Info"),
+      ),
         body: isLoading
             ? Container(
                 height: size.height,
@@ -141,10 +145,10 @@ class _GroupInfoState extends State<GroupInfo> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: BackButton(),
-                    ),
+                    // Align(
+                    //   alignment: Alignment.centerLeft,
+                    //   child: BackButton(),
+                    // ),
                     Container(
                       height: size.height / 8,
                       width: size.width / 1.1,
@@ -182,7 +186,7 @@ class _GroupInfoState extends State<GroupInfo> {
                       ),
                     ),
 
-                    //
+                    // members length
 
                     SizedBox(
                       height: size.height / 20,
@@ -238,14 +242,14 @@ class _GroupInfoState extends State<GroupInfo> {
                           return ListTile(
                             onTap: () => showDialogBox(index),
                             leading: Icon(Icons.account_circle),
-                            title: Text(
-                              membersList[index]['name'],
+                            title: Text("mayank",
+                             // membersList[index]['name'],
                               style: TextStyle(
                                 fontSize: size.width / 22,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            subtitle: Text(membersList[index]['email']),
+                            subtitle: Text(membersList[index]['number']),
                             trailing: Text(
                                 membersList[index]['isAdmin'] ? "Admin" : ""),
                           );
@@ -271,7 +275,6 @@ class _GroupInfoState extends State<GroupInfo> {
                   ],
                 ),
               ),
-      ),
     );
   }
 }

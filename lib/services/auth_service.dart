@@ -47,7 +47,7 @@ class AuthenticationService implements BaseAuthenticationService {
 
           final userInCollection = await _read(firestoreProvider)
               .collection('users')
-              .where("uid", isEqualTo: user.uid)
+              .where("id", isEqualTo: user.uid)
               .get();
 
           if (userInCollection.docs.isEmpty) {
@@ -106,7 +106,7 @@ class AuthenticationService implements BaseAuthenticationService {
 
                         final userInCollection = await _read(firestoreProvider)
                             .collection('users')
-                            .where("uid", isEqualTo: user.uid)
+                            .where("id", isEqualTo: user.uid)
                             .get();
 
                         if (userInCollection.docs.isEmpty) {

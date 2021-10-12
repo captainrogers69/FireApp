@@ -132,6 +132,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                 width: size.width / 1.15,
                 child: TextField(
                   controller: _search,
+                  keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     hintText: "Search",
                     border: OutlineInputBorder(

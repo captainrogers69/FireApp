@@ -18,7 +18,7 @@ class UserPageWidget extends StatelessWidget {
         vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: Colors.deepPurple,
+        color: Colors.lightBlue,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -30,7 +30,7 @@ class UserPageWidget extends StatelessWidget {
             ),
             child: Text(
               text ?? "Username",
-              style: TextStyle(color: Color(0xff00cd7b)),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           actionWidget,
