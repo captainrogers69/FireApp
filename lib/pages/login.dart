@@ -32,9 +32,6 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment:
                         MainAxisAlignment.center, //spacing from top
                     children: [
-                      // Container(
-                      //   height: 200,   //spacing from top
-                      // ),
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(

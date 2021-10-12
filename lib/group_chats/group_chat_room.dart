@@ -50,11 +50,8 @@ class GroupChatRoom extends StatelessWidget {
                 ),
               ),
             ),
-            icon: IconButton(
-              onPressed: () {},
-              icon: Icon(
+            icon: Icon(
                 Icons.more_vert,
-              ),
             ),
           ),
         ],

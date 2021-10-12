@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/whatsapp_home.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:uuid/uuid.dart';
 
 class CreateGroup extends StatefulWidget {
   final List<Map<String, dynamic>> membersList;
@@ -51,6 +51,7 @@ class _CreateGroupState extends State<CreateGroup> {
 
     await _firestore.collection('groups').doc(groupId).collection('chats').add({
       "groupname": _groupName.text,
+      "grpdetail": " created by ${_auth.currentUser.displayName}",
       "message": "${_auth.currentUser.displayName} Created This Group.",
       "type": "notification",
     });

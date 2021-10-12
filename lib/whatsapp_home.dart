@@ -5,13 +5,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
-import 'package:flutterwhatsapp/pages/status_screen.dart';
 import 'package:flutterwhatsapp/pages/user.dart';
 
 class WhatsAppHome extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    final _tabController = useTabController(initialIndex: 0, initialLength: 3);
+    final _tabController = useTabController(initialIndex: 0, initialLength: 2);
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -25,9 +24,9 @@ class WhatsAppHome extends HookWidget {
             controller: _tabController,
             indicatorColor: Colors.white,
             tabs: <Widget>[
-              Tab(
-                text: "ACTIVE",
-              ),
+              // Tab(
+              //   text: "ACTIVE",
+              // ),
               Tab(
                 text: "HOME",
               ),
@@ -113,7 +112,7 @@ class WhatsAppHome extends HookWidget {
           controller: _tabController,
           children: <Widget>[
             // ChatScreen(),
-            StatusScreen(),
+            // StatusScreen(),
             HomeScreen(),
             UserScreen(),
           ],

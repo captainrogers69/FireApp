@@ -15,7 +15,7 @@ class UserEditBottomSheet extends HookWidget {
       width: size.width,
       height: size.height / 1.5,
       decoration: BoxDecoration(
-        color: Color(0xffc2fbe1),
+        color: Colors.white,
       ),
       child: isLoading.value
           ? Center(
@@ -27,6 +27,7 @@ class UserEditBottomSheet extends HookWidget {
             )
           : Column(
               children: [
+                Icon(Icons.drag_handle,),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                   child: Container(
@@ -34,8 +35,14 @@ class UserEditBottomSheet extends HookWidget {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         helperText: 'What should we call you?',
+                        border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      hintText: "Enter New Name",
                         helperStyle: TextStyle(
                           color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                         ),
                       ),
                     ),
