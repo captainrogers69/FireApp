@@ -51,7 +51,7 @@ class UserEditBottomSheet extends HookWidget {
                 Padding(
                   padding: EdgeInsets.all(30),
                   child: MaterialButton(
-                    color: Color(0xff00cd7b),
+                    color: Colors.lightBlue,
                     child: Text("Update"),
                     onPressed: () async {
                       isLoading.value = true;

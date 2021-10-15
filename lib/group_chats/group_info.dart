@@ -1,15 +1,14 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/add_members.dart';
-import 'package:flutterwhatsapp/whatsapp_home.dart';
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
-  const GroupInfo({@required this.groupId, @required this.groupName, Key key})
-      : super(key: key);
+  const GroupInfo({
+    @required this.groupId,
+    @required this.groupName,
+    Key key,
+  }) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -20,22 +19,17 @@ class _GroupInfoState extends State<GroupInfo> {
   bool isLoading = true;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  // FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-
     getGroupDetails();
   }
 
   Future getGroupDetails() async {
-    String uid = _auth.currentUser.uid;
-    await _firestore
-        .collection('groups')
-        .doc(uid)
-        .get()
-        .then((chatMap) {
+    // String uid = _auth.currentUser.uid;
+    await _firestore.collection('groups').doc().get().then((chatMap) {
       membersList = chatMap['members'];
       print(membersList);
       isLoading = false;
@@ -43,87 +37,87 @@ class _GroupInfoState extends State<GroupInfo> {
     });
   }
 
-  bool checkAdmin() {
-    bool isAdmin = false;
+  // bool checkAdmin() {
+  //   bool isAdmin = false;
 
-    membersList.forEach((element) {
-      if (element['uid'] == _auth.currentUser.uid) {
-        isAdmin = element['isAdmin'];
-      }
-    });
-    return isAdmin;
-  }
+  //   membersList.forEach((element) {
+  //     if (element['uid'] == _auth.currentUser.uid) {
+  //       isAdmin = element['isAdmin'];
+  //     }
+  //   });
+  //   return isAdmin;
+  // }
 
-  Future removeMembers(int index) async {
-    String uid = membersList[index]['uid'];
+  // Future removeMembers(int index) async {
+  //   String uid = membersList[index]['uid'];
 
-    setState(() {
-      isLoading = true;
-      membersList.removeAt(index);
-    });
+  //   setState(() {
+  //     isLoading = true;
+  //     membersList.removeAt(index);
+  //   });
 
-    await _firestore.collection('groups').doc(widget.groupId).update({
-      "members": membersList,
-    }).then((value) async {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('groups')
-          .doc(widget.groupId)
-          .delete();
+  //   await _firestore.collection('groups').doc(widget.groupId).update({
+  //     "members": membersList,
+  //   }).then((value) async {
+  //     await _firestore
+  //         .collection('users')
+  //         .doc(uid)
+  //         .collection('groups')
+  //         .doc(widget.groupId)
+  //         .delete();
 
-      setState(() {
-        isLoading = false;
-      });
-    });
-  }
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   });
+  // }
 
-  void showDialogBox(int index) {
-    if (checkAdmin()) {
-      if (_auth.currentUser.uid != membersList[index]['uid']) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: ListTile(
-                  onTap: () => removeMembers(index),
-                  title: Text("Remove This Member"),
-                ),
-              );
-            });
-      }
-    }
-  }
+  // void showDialogBox(int index) {
+  //   if (checkAdmin()) {
+  //     if (_auth.currentUser.uid != membersList[index]['uid']) {
+  //       showDialog(
+  //           context: context,
+  //           builder: (context) {
+  //             return AlertDialog(
+  //               content: ListTile(
+  //                 onTap: () => removeMembers(index),
+  //                 title: Text("Remove This Member"),
+  //               ),
+  //             );
+  //           });
+  //     }
+  //   }
+  // }
 
-  Future onLeaveGroup() async {
-    if (!checkAdmin()) {
-      setState(() {
-        isLoading = true;
-      });
+  // Future onLeaveGroup() async {
+  //   if (!checkAdmin()) {
+  //     setState(() {
+  //       isLoading = true;
+  //     });
 
-      for (int i = 0; i < membersList.length; i++) {
-        if (membersList[i]['uid'] == _auth.currentUser.uid) {
-          membersList.removeAt(i);
-        }
-      }
+  //     for (int i = 0; i < membersList.length; i++) {
+  //       if (membersList[i]['uid'] == _auth.currentUser.uid) {
+  //         membersList.removeAt(i);
+  //       }
+  //     }
 
-      await _firestore.collection('groups').doc(widget.groupId).update({
-        "members": membersList,
-      });
+  //     await _firestore.collection('groups').doc(widget.groupId).update({
+  //       "members": membersList,
+  //     });
 
-      await _firestore
-          .collection('users')
-          .doc(_auth.currentUser.uid)
-          .collection('groups')
-          .doc(widget.groupId)
-          .delete();
+  //     await _firestore
+  //         .collection('users')
+  //         .doc(_auth.currentUser.uid)
+  //         .collection('groups')
+  //         .doc(widget.groupId)
+  //         .delete();
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => WhatsAppHome()),
-        (route) => false,
-      );
-    }
-  }
+  //     Navigator.of(context).pushAndRemoveUntil(
+  //       MaterialPageRoute(builder: (_) => WhatsAppHome()),
+  //       (route) => false,
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -134,147 +128,145 @@ class _GroupInfoState extends State<GroupInfo> {
         backgroundColor: Colors.lightBlue,
         title: Text("Group Info"),
       ),
-        body: isLoading
-            ? Container(
-                height: size.height,
-                width: size.width,
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
-              )
-            : SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Align(
-                    //   alignment: Alignment.centerLeft,
-                    //   child: BackButton(),
-                    // ),
-                    Container(
-                      height: size.height / 8,
-                      width: size.width / 1.1,
-                      child: Row(
-                        children: [
-                          Container(
-                            height: size.height / 11,
-                            width: size.height / 11,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey,
-                            ),
-                            child: Icon(
-                              Icons.group,
-                              color: Colors.white,
-                              size: size.width / 10,
-                            ),
+      body: isLoading
+          ? Container(
+              height: size.height,
+              width: size.width,
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Align(
+                  //   alignment: Alignment.centerLeft,
+                  //   child: BackButton(),
+                  // ),
+                  Container(
+                    height: size.height / 8,
+                    width: size.width / 1.1,
+                    child: Row(
+                      children: [
+                        Container(
+                          height: size.height / 11,
+                          width: size.height / 11,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey,
                           ),
-                          SizedBox(
-                            width: size.width / 20,
+                          child: Icon(
+                            Icons.group,
+                            color: Colors.white,
+                            size: size.width / 10,
                           ),
-                          Expanded(
-                            child: Container(
-                              child: Text(
-                                widget.groupName,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: size.width / 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        ),
+                        SizedBox(
+                          width: size.width / 20,
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: Text(
+                              widget.groupName,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: size.width / 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // members length
+                  SizedBox(
+                    height: size.height / 20,
+                  ),
+                  Container(
+                    width: size.width / 1.1,
+                    child: Text(
+                      "${membersList.length} Members",
+                      style: TextStyle(
+                        fontSize: size.width / 20,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                  ),
 
-                    // members length
+                  SizedBox(
+                    height: size.height / 20,
+                  ),
 
-                    SizedBox(
-                      height: size.height / 20,
-                    ),
+                  // Members Name
 
-                    Container(
-                      width: size.width / 1.1,
-                      child: Text(
-                        "${membersList.length} Members",
-                        style: TextStyle(
-                          fontSize: size.width / 20,
-                          fontWeight: FontWeight.w500,
+                  // checkAdmin()
+                  //     ?
+                  ListTile(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AddMembersINGroup(
+                          groupChatId: widget.groupId,
+                          name: widget.groupName,
+                          membersList: membersList,
                         ),
                       ),
                     ),
-
-                    SizedBox(
-                      height: size.height / 20,
+                    leading: Icon(
+                      Icons.add,
                     ),
-
-                    // Members Name
-
-                    checkAdmin()
-                        ? ListTile(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => AddMembersINGroup(
-                                  groupChatId: widget.groupId,
-                                  name: widget.groupName,
-                                  membersList: membersList,
-                                ),
-                              ),
-                            ),
-                            leading: Icon(
-                              Icons.add,
-                            ),
-                            title: Text(
-                              "Add Members",
-                              style: TextStyle(
-                                fontSize: size.width / 22,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          )
-                        : SizedBox(),
-
-                    Flexible(
-                      child: ListView.builder(
-                        itemCount: membersList.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            onTap: () => showDialogBox(index),
-                            leading: Icon(Icons.account_circle),
-                            title: Text("mayank",
-                             // membersList[index]['name'],
-                              style: TextStyle(
-                                fontSize: size.width / 22,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            subtitle: Text(membersList[index]['number']),
-                            trailing: Text(
-                                membersList[index]['isAdmin'] ? "Admin" : ""),
-                          );
-                        },
+                    title: Text(
+                      "Add Members",
+                      style: TextStyle(
+                        fontSize: size.width / 22,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-
-                    ListTile(
-                      onTap: onLeaveGroup,
-                      leading: Icon(
-                        Icons.logout,
+                  ),
+                  // :
+                  //  SizedBox(),
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: membersList.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          // onTap: () => showDialogBox(index),
+                          leading: Icon(Icons.account_circle),
+                          title: Text(
+                            "mayank",
+                            // membersList[index]['name'],
+                            style: TextStyle(
+                              fontSize: size.width / 22,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Text(membersList[index]['number']),
+                          trailing: Text(
+                              membersList[index]['isAdmin'] ? "Admin" : ""),
+                        );
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    // onTap: onLeaveGroup,
+                    leading: Icon(
+                      Icons.logout,
+                      color: Colors.redAccent,
+                    ),
+                    title: Text(
+                      "Leave Group",
+                      style: TextStyle(
+                        fontSize: size.width / 22,
+                        fontWeight: FontWeight.w500,
                         color: Colors.redAccent,
                       ),
-                      title: Text(
-                        "Leave Group",
-                        style: TextStyle(
-                          fontSize: size.width / 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.redAccent,
-                        ),
-                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
     );
   }
 }

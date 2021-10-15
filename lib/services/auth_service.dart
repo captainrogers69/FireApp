@@ -46,6 +46,7 @@ class AuthenticationService implements BaseAuthenticationService {
               .collection('users')
               .where("id", isEqualTo: user.uid)
               .get();
+              Fluttertoast.showToast(msg: "Login Succesful");
 
           if (userInCollection.docs.isEmpty) {
             await _read(firestoreProvider).collection('users').add({

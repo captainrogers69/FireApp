@@ -1,5 +1,6 @@
 import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/home_screen.dart';
+import 'package:flutterwhatsapp/pages/user_admin.dart';
 import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'package:flutterwhatsapp/pages/user.dart';
 class WhatsAppHome extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    final _tabController = useTabController(initialIndex: 0, initialLength: 2);
+    final _tabController = useTabController(initialIndex: 1, initialLength: 3);
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -24,9 +25,9 @@ class WhatsAppHome extends HookWidget {
             controller: _tabController,
             indicatorColor: Colors.white,
             tabs: <Widget>[
-              // Tab(
-              //   text: "ACTIVE",
-              // ),
+              Tab(
+                text: "ADMIN",
+              ),
               Tab(
                 text: "HOME",
               ),
@@ -111,8 +112,7 @@ class WhatsAppHome extends HookWidget {
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            // ChatScreen(),
-            // StatusScreen(),
+            UserAdmin(),
             HomeScreen(),
             UserScreen(),
           ],

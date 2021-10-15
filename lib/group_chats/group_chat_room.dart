@@ -6,8 +6,12 @@ import 'package:flutterwhatsapp/group_chats/group_info.dart';
 class GroupChatRoom extends StatelessWidget {
   final String groupChatId, groupName, message;
 
-  GroupChatRoom({@required this.groupName, @required this.groupChatId, @required this.message, Key key})
-      : super(key: key);
+  GroupChatRoom({
+    @required this.groupName,
+    @required this.groupChatId,
+    @required this.message,
+    Key key,
+  }) : super(key: key);
 
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -51,14 +55,15 @@ class GroupChatRoom extends StatelessWidget {
               ),
             ),
             icon: Icon(
-                Icons.more_vert,
+              Icons.more_vert,
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: [ Text(message),
+          children: [
+            Text(message),
             Container(
               height: size.height / 1.27,
               width: size.width,
@@ -82,7 +87,9 @@ class GroupChatRoom extends StatelessWidget {
                     );
                   } else {
                     return Container(
-                      child: CircularProgressIndicator(),
+                      height: 50,
+                      width: 50,
+                      child: Center(child: CircularProgressIndicator()),
                     );
                   }
                 },
