@@ -13,12 +13,7 @@ class UserAdmin extends HookWidget {
     final authControllerState = useProvider(authControllerProvider);
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
-        stream: context
-            .read(firestoreProvider)
-            .collection('users')
-            // .doc()
-            // .collection('grouptag')
-            .snapshots(),
+        stream: context.read(firestoreProvider).collection('users').snapshots(),
         builder: (
           BuildContext context,
           AsyncSnapshot<QuerySnapshot> snapshot,
@@ -51,21 +46,10 @@ class UserAdmin extends HookWidget {
               Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
               return ListTile(
-                // onTap: () => Navigator.of(context).push(
-                //   MaterialPageRoute(
-                //     builder: (_) => GroupChatRoom(
-                //       message: data['message'],
-                // groupName: data['groupname'],
-                // groupChatId: data['id'],
-                // ),
-                // ),
-                // ),
                 leading: Icon(
                   Icons.verified_user,
                 ),
-                title:
-                    //Text(data['id']),
-                    Text(authControllerState.displayName),
+                title: Text(data["name"]),
                 subtitle: Text(data['number']),
                 trailing: Icon(
                   Icons.chat,
