@@ -8,3 +8,13 @@ final firebaseAuthProvider =
 final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
+
+final groupNameProvider = StateProvider<dynamic>((ref) {
+  final groupName = ref
+      .read(firestoreProvider)
+      .collection("groups").doc().collection('grouptag')
+      .get()
+      .then((value) => value.docs[0].data());
+
+  return groupName;
+});

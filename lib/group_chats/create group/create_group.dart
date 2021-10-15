@@ -3,11 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/whatsapp_home.dart';
-// import 'package:uuid/uuid.dart';
 
 class CreateGroup extends StatefulWidget {
   final List<Map<String, dynamic>> membersList;
-
   const CreateGroup({
     @required this.membersList,
     Key key,
@@ -18,7 +16,8 @@ class CreateGroup extends StatefulWidget {
 }
 
 class _CreateGroupState extends State<CreateGroup> {
-  final TextEditingController _groupName = TextEditingController();
+  final TextEditingController groupName = TextEditingController();
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isLoading = false;
@@ -27,33 +26,19 @@ class _CreateGroupState extends State<CreateGroup> {
     setState(() {
       isLoading = true;
     });
+    // String groupId = Uuid().v1();
 
-    String groupId = _auth.currentUser.uid;
-
-    await _firestore.collection('groups').doc(groupId).set({
-      "members": widget.membersList,
-      "id": groupId,
-    });
-
-    // for (int i = 0; i < widget.membersList.length; i++) {
-    // String uid = widget.membersList[i]['uid'];
-
-    // await _firestore
-    //     .collection('users')
-    //     .doc(uid)
-    //     .collection('groups')
-    //     .doc(groupId)
-    //     .update({
-    //   "grpname": _groupName.text,
-    //   "id": groupId,
-    // });
-    // }
-
-    await _firestore.collection('groups').doc(groupId).collection('chats').add({
-      "groupname": _groupName.text,
+    await _firestore
+        .collection("groups")
+        // .doc()
+        // .collection('grouptag')
+        .add({
+          // "id": groupId,
+      "groupname": groupName.text,
       "grpdetail": " created by ${_auth.currentUser.displayName}",
       "message": "${_auth.currentUser.displayName} Created This Group.",
       "type": "notification",
+      "members": widget.membersList,
     });
 
     Navigator.of(context).pushAndRemoveUntil(
@@ -91,7 +76,7 @@ class _CreateGroupState extends State<CreateGroup> {
                     height: size.height / 14,
                     width: size.width / 1.15,
                     child: TextField(
-                      controller: _groupName,
+                      controller: groupName,
                       decoration: InputDecoration(
                         hintText: "Enter Group Name",
                         border: OutlineInputBorder(
@@ -111,5 +96,25 @@ class _CreateGroupState extends State<CreateGroup> {
               ],
             ),
     );
-  }
-}
+  }}
+
+
+    // await _firestore
+    //     .collection('groups')
+    //     .doc(groupId)
+    //     .collection('members')
+    //     .add();
+
+    // for (int i = 0; i < widget.membersList.length; i++) {
+    // String uid = widget.membersList[i]['uid'];
+
+    // await _firestore
+    //     .collection('users')
+    //     .doc(uid)
+    //     .collection('groups')
+    //     .doc(groupId)
+    //     .update({
+    //   "grpname": _groupName.text,
+    //   "id": groupId,
+    // });
+    // }

@@ -33,7 +33,6 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
         .then((map) {
       setState(() {
         membersList.add({
-          // "name": map['name'],
           "number": map['number'],
           "uid": map['uid'],
           "isAdmin": true,
@@ -60,7 +59,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
     });
   }
 
-  void onResultTap() {
+  void onResultTap()  {
     bool isAlreadyExist = false;
 
     for (int i = 0; i < membersList.length; i++) {
@@ -179,7 +178,6 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                   ),
                 )
                 );
-                // await Fluttertoast.showToast(msg: "Group created");
               }
             )
           : SizedBox(),
