@@ -71,10 +71,10 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
     if (!isAlreadyExist) {
       setState(() {
         membersList.add({
-          // "name": userMap['name'],
+          "name": userMap['name'],
           "number": userMap['number'],
           "uid": userMap['uid'],
-          "isAdmin": false,
+          "authorization": userMap['authorization'],
         });
 
         userMap = null;

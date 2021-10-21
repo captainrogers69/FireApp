@@ -9,6 +9,12 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
 
+// final useFromUsersCollectionProvider = Provider<DocumentSnapshot<Map<String, dynamic>>>((ref) {
+//   final user = ref.read(authControllerProvider);
+//   final userFromUsersCollection =  ref.read(firestoreProvider).collection('users').doc(user.uid).get();
+//   return userFromUsersCollection;
+// });
+
 final groupNameProvider = StateProvider<dynamic>((ref) {
   final groupName = ref
       .read(firestoreProvider)

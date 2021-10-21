@@ -44,15 +44,16 @@ class AuthenticationService implements BaseAuthenticationService {
         if (user != null) {
           final userInCollection = await _read(firestoreProvider)
               .collection('users')
-              .where("id", isEqualTo: user.uid)
+              .where("number", isEqualTo: user.phoneNumber)
               .get();
               Fluttertoast.showToast(msg: "Login Succesful");
 
           if (userInCollection.docs.isEmpty) {
-            await _read(firestoreProvider).collection('users').add({
-              "id": user.uid,
+            await _read(firestoreProvider).collection('users').doc(user.uid).set({
               "number": phone,
+              "name": "",
               "status": "offline",
+              "authorization" : false,
             });
           } else {
             Fluttertoast.showToast(msg: "Account Created");
@@ -99,16 +100,17 @@ class AuthenticationService implements BaseAuthenticationService {
                       if (user != null) {
                         final userInCollection = await _read(firestoreProvider)
                             .collection('users')
-                            .where("id", isEqualTo: user.uid)
+                            .where("number", isEqualTo: user.phoneNumber)
                             .get();
 
                         if (userInCollection.docs.isEmpty) {
                           await _read(firestoreProvider)
                               .collection('users')
-                              .add({
-                            "id": user.uid,
+                              .doc(user.uid).set({
+                            "name": "",
                             "number": phone,
                             "status": "offline",
+                            "authorization" : false,
                           });
 
                           Navigator.pop(context);
@@ -139,5 +141,12 @@ class AuthenticationService implements BaseAuthenticationService {
     await _read(firebaseAuthProvider)
         .currentUser
         .updateDisplayName(newUsername);
+
+            final user = getCurrentUser();
+
+    await _read(firestoreProvider)
+        .collection("users")
+        .doc(user.uid)
+        .update({"name": user.displayName});
   }
-}
+  }

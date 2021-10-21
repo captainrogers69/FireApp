@@ -1,17 +1,57 @@
-import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+import 'package:flutterwhatsapp/group_chats/create%20group/add_members.dart';
 import 'package:flutterwhatsapp/pages/home_screen.dart';
 import 'package:flutterwhatsapp/pages/user_admin.dart';
 import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
 import 'package:flutterwhatsapp/pages/user.dart';
 
-class WhatsAppHome extends HookWidget {
+class WhatsAppHome extends StatefulWidget {
+  @override
+  State<WhatsAppHome> createState() => _WhatsAppHomeState();
+}
+
+class _WhatsAppHomeState extends State<WhatsAppHome>
+    with SingleTickerProviderStateMixin {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  TabController _tabController;
+// User user;
+// DocumentSnapshot<Map<String, dynamic>> userFromUsersCollection;
+
+  void createGroupByAdminOnly() async {
+    final user = context.read(authControllerProvider);
+    final userFromUsersCollection =
+        await _firestore.collection('users').doc(user.uid).get();
+    if (userFromUsersCollection.data()["authorization"]) {
+      // onSearch();
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => AddMembersInGroup(),
+      ));
+    } else {
+      Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      vsync: this,
+      initialIndex: 1,
+      length: 3,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _tabController = useTabController(initialIndex: 1, initialLength: 3);
+    // final _tabController = useTabController(
+    //   initialIndex: 1,
+    //   initialLength: 3,
+    // );
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -32,27 +72,24 @@ class WhatsAppHome extends HookWidget {
                 text: "HOME",
               ),
               Tab(
-                text: "USERS",
+                text: "SETTINGS",
               ),
             ],
           ),
           actions: <Widget>[
-            IconButton(
-              onPressed: () {},
+            // IconButton(
+            //   onPressed: () {},
+            //   icon: Icon(
+            //     Icons.search,
+            //   ),
+            // ),
+            SizedBox(
+                child: IconButton(
+              onPressed: createGroupByAdminOnly,
               icon: Icon(
-                Icons.search,
+                Icons.create,
               ),
-            ),
-            IconButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => GroupChatHomeScreen(),
-                ),
-              ),
-              icon: Icon(
-                Icons.group,
-              ),
-            ),
+            )),
             IconButton(
               onPressed: () {
                 showDialog(
@@ -120,4 +157,25 @@ class WhatsAppHome extends HookWidget {
       ),
     );
   }
+
+//   Widget creategroup(BuildContext context) async {
+//   final user = context.read(authControllerProvider);
+//     final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
+//     if ( userFromUsersCollection.data()["authorization"] ) {
+//    return
+//    IconButton(
+//                 onPressed: () => Navigator.of(context).push(     // only admin
+//                   MaterialPageRoute(
+//                     builder: (_) => AddMembersInGroup(),
+//                   ),
+//                 ),
+//                 icon: Icon(
+//                   Icons.create,
+//                 ),
+//             );
+//             } else {
+
+//       Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
+//     }
+// }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterwhatsapp/group_chats/create%20group/add_members.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/group_chats/group_chat_room.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutterwhatsapp/general_providers.dart';
@@ -16,26 +17,22 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => AddMembersInGroup(),
-          ),
-        ),
-        tooltip: "Create Group",
-      ), 
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(Icons.create),
+      //   onPressed: () => Navigator.of(context).push(
+      //     MaterialPageRoute(
+      //       builder: (_) => AddMembersInGroup(),
+      //     ),
+      //   ),
+      //   tooltip: "Create Group",
+      // ),
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
         title: Text("Groups Available"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: context
-            .read(firestoreProvider)
-            .collection('groups')
-            // .doc()
-            // .collection('grouptag')
-            .snapshots(),
+        stream:
+            context.read(firestoreProvider).collection('groups').snapshots(),
         builder: (
           BuildContext context,
           AsyncSnapshot<QuerySnapshot> snapshot,
@@ -69,15 +66,26 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
               Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
               return ListTile(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => GroupChatRoom(
-                      message: data['message'],
-                groupName: data['groupname'],
-                groupChatId: document.id,
-                ),
-                ),
-                ),
+                onTap: () async {
+                  print(data['members'].map((data) => data['number']));
+                  final user = context.read(authControllerProvider);
+                  final isUserinMemberslist =
+                      data['members'].map((data) => data['number']).contains(user.phoneNumber);
+                  if (isUserinMemberslist) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => GroupChatRoom(
+                          memberslist: data['members'],
+                          message: data['message'],
+                          groupName: data['groupname'],
+                          groupChatId: document.id,
+                        ),
+                      ),
+                    );
+                  } else {
+                    Fluttertoast.showToast(msg: "Youre not in this group");
+                  }
+                },
                 leading: Icon(
                   Icons.verified_user,
                 ),
