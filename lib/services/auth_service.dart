@@ -32,7 +32,7 @@ class AuthenticationService implements BaseAuthenticationService {
     final _codeController = TextEditingController();
     _read(firebaseAuthProvider).verifyPhoneNumber(
       phoneNumber: phone,
-      timeout: Duration(seconds: 60),
+      timeout: Duration(seconds: 30),
       verificationCompleted: (AuthCredential credential) async {
         Navigator.of(context).pop();
 
@@ -46,9 +46,10 @@ class AuthenticationService implements BaseAuthenticationService {
               .collection('users')
               .where("number", isEqualTo: user.phoneNumber)
               .get();
-              Fluttertoast.showToast(msg: "Login Succesful");
+          Fluttertoast.showToast(msg: "Login Succesful");
 
           if (userInCollection.docs.isEmpty) {
+
             await _read(firestoreProvider).collection('users').doc(user.uid).set({
               "number": phone,
               "name": "",
@@ -106,6 +107,7 @@ class AuthenticationService implements BaseAuthenticationService {
                         if (userInCollection.docs.isEmpty) {
                           await _read(firestoreProvider)
                               .collection('users')
+
                               .doc(user.uid).set({
                             "name": "",
                             "number": phone,
@@ -141,6 +143,7 @@ class AuthenticationService implements BaseAuthenticationService {
     await _read(firebaseAuthProvider)
         .currentUser
         .updateDisplayName(newUsername);
+
 
             final user = getCurrentUser();
 
