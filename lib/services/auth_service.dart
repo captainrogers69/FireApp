@@ -49,13 +49,12 @@ class AuthenticationService implements BaseAuthenticationService {
           Fluttertoast.showToast(msg: "Login Succesful");
 
           if (userInCollection.docs.isEmpty) {
-            await _read(firestoreProvider)
-                .collection('users')
-                .doc(user.uid)
-                .set({
-              "name": user.displayName,
+
+            await _read(firestoreProvider).collection('users').doc(user.uid).set({
               "number": phone,
+              "name": "",
               "status": "offline",
+              "authorization" : false,
             });
           } else {
             Fluttertoast.showToast(msg: "Account Created");
@@ -108,11 +107,12 @@ class AuthenticationService implements BaseAuthenticationService {
                         if (userInCollection.docs.isEmpty) {
                           await _read(firestoreProvider)
                               .collection('users')
-                              .doc(user.uid)
-                              .set({
-                            "name": user.displayName,
+
+                              .doc(user.uid).set({
+                            "name": "",
                             "number": phone,
                             "status": "offline",
+                            "authorization" : false,
                           });
 
                           Navigator.pop(context);
@@ -144,11 +144,12 @@ class AuthenticationService implements BaseAuthenticationService {
         .currentUser
         .updateDisplayName(newUsername);
 
-    final user = getCurrentUser();
+
+            final user = getCurrentUser();
 
     await _read(firestoreProvider)
         .collection("users")
         .doc(user.uid)
         .update({"name": user.displayName});
   }
-}
+  }

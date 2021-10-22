@@ -1,57 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
-import 'package:flutterwhatsapp/pages/chat_screen.dart';
-
-//home screen
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-// with WidgetsBindingObserver
 class _HomeScreenState extends State<HomeScreen> {
   bool isloading = false;
   final TextEditingController _search = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, dynamic> userMap;
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addObserver(this);
-  //   setStatus("Online");
-  // }
-
-  // void setStatus(String status) async {
-
-  //   await _firestore.collection('users').doc(_auth.currentUser.uid).update({
-  //     "status": status,});
-  // }
-
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-
-  //   if(state == AppLifecycleState.resumed) {
-  //     //online
-  //     setStatus("online");
-  //   }else{
-  //     //offline
-  //     setStatus("offline");
+  // String chatRoomId(String user1, user2) {
+  //   if (user1[0].toLowerCase().codeUnits[0] >
+  //       user2.toLowerCase().codeUnits[0]) {
+  //     return "$user1$user2";
+  //   } else {
+  //     return "$user2$user1";
   //   }
   // }
-
-  String chatRoomId(String user1, user2) {
-    if (user1[0].toLowerCase().codeUnits[0] >
-        user2.toLowerCase().codeUnits[0]) {
-      return "$user1$user2";
-    } else {
-      return "$user2$user1";
-    }
-  }
 
   void onSearch() async {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -73,63 +45,34 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void onSearch2() async {
+
+    final user = context.read(authControllerProvider);
+    final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
+    if ( userFromUsersCollection.data()["authorization"] ) {
+      onSearch();
+    } else {
+      Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
+    }
+  }
+
+  void contactadmin() {
+    Fluttertoast.showToast(msg: "You're already an Admin");
+  }
+
+  void contactadminfeature() async {
+     final user = context.read(authControllerProvider);
+    final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
+    if ( userFromUsersCollection.data()["authorization"] ) {
+      contactadmin();
+    } else {
+      Fluttertoast.showToast(msg: "Admin will be right back to you!");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isloading
-          ? Center(
-              child: Container(
-                height: 50,
-                width: 50,
-                child: CircularProgressIndicator(),
-              ),
-            )
-          : Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(15),
-                  child: TextField(
-                    controller: _search,
-                    decoration: InputDecoration(
-                      hintText: "Search Users(admin)",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: onSearch,
-                  child: Text(
-                    "search",
-                  ),
-                ),
-                userMap != null
-                    ? ListTile(
-                        onTap: () {
-                          String roomId = chatRoomId(
-                            _auth.currentUser.phoneNumber,
-                            // userMap['status'],
-                            userMap['number'],
-                          );
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ChatRoom(
-                                chatRoomId: roomId,
-                                userMap: userMap,
-                              ),
-                            ),
-                          );
-                        },
-                        leading: Icon(Icons.verified_user),
-                        title: Text(userMap['number']),
-                        subtitle: Text("Name here"),
-                        trailing: Icon(Icons.chat),
-                      )
-                    : Container(),
-              ],
-            ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.group),
         onPressed: () => Navigator.of(context).push(
@@ -138,6 +81,96 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: isloading
+            ? Center(
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ListTile(
+                      onTap: contactadminfeature,
+                            // onTap: () {
+                            //   String roomId = chatRoomId(
+                            // _auth.currentUser.phoneNumber,
+                            // userMap['status'],
+                            // userMap['number'],
+                            // );
+
+                            //   Navigator.of(context).push(
+                            //     MaterialPageRoute(
+                            //       builder: (_) => ChatRoom(
+                            //         chatRoomId: roomId,
+                            //         userMap: userMap,
+                            //       ),
+                            //     ),
+                            //   );
+                            // },
+                            leading: Icon(Icons.verified_user, size: 25, color: Colors.lightBlue,),
+                            title: Text('Contact Admin'),
+                            subtitle: Text("Tap here to chat"),
+                            trailing: Icon(Icons.chat, color: Colors.lightBlue,),
+                          ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(15),
+                    child: TextField(
+                      controller: _search,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: "Search Users(admin)",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: onSearch2,
+                    child: Text(
+                      "Search User",
+                    ),
+                  ),
+                  userMap != null
+                      ? ListTile(
+                        onTap: () {
+                          Fluttertoast.showToast(msg: "One on One chat Coming Soon");
+                        },
+                          // onTap: () {
+                          //   String roomId = chatRoomId(
+                          // _auth.currentUser.phoneNumber,
+                          // userMap['status'],
+                          // userMap['number'],
+                          // );
+      
+                          //   Navigator.of(context).push(
+                          //     MaterialPageRoute(
+                          //       builder: (_) => ChatRoom(
+                          //         chatRoomId: roomId,
+                          //         userMap: userMap,
+                          //       ),
+                          //     ),
+                          //   );
+                          // },
+                          leading: Icon(Icons.person, size: 30,),
+                          title: Text(userMap['name']),
+                          subtitle: Text("Tap here to Chat"),
+                          trailing: Icon(Icons.chat),
+                        )
+                      : Container(),
+                ],
+              ),
+      ),
+      
     );
   }
 }
