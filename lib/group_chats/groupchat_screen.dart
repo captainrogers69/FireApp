@@ -67,7 +67,6 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                   document.data() as Map<String, dynamic>;
               return ListTile(
                 onTap: () async {
-                  print(data['members'].map((data) => data['number']));
                   final user = context.read(authControllerProvider);
                   final isUserinMemberslist =
                       data['members'].map((data) => data['number']).contains(user.phoneNumber);

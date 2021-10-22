@@ -134,8 +134,12 @@ class _GroupInfoState extends State<GroupInfo> {
 
   //adding new members to the group
 
-  addingmembers() {
-    Navigator.of(context).push(
+    addingmemberstogrouprules() async {
+    final user = context.read(authControllerProvider);
+    final userFromUsersCollection =
+        await _firestore.collection('users').doc(user.uid).get();
+    if (userFromUsersCollection.data()["authorization"]) {
+      Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AddMembersINGroup(
           groupChatId: widget.groupId,
@@ -144,22 +148,32 @@ class _GroupInfoState extends State<GroupInfo> {
         ),
       ),
     );
-  }
-
-  addingmemberstogrouprules() async {
-    final user = context.read(authControllerProvider);
-    final userFromUsersCollection =
-        await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
-      addingmembers();
     } else {
       Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
     }
   }
 
+  //leaving group
+
+  void leavegroupcheckingadmin() async {
+    final user = context.read(authControllerProvider);
+    final userFromUsersCollection =
+        await _firestore.collection('users').doc(user.uid).get();
+    if (userFromUsersCollection.data()["authorization"]) {
+      Fluttertoast.showToast(msg: "You're an Admin, Can't Leave Group");
+    } else {
+      await _firestore.collection('groups').doc(widget.groupId).update({
+        'members': widget.groupMembers
+            .where((member) => member['number'] != user.phoneNumber).toList()
+      });
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: "You Left the Group");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final user = context.read(authenticationServiceProvider).getCurrentUser();
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -262,33 +276,27 @@ class _GroupInfoState extends State<GroupInfo> {
             // ),
             Expanded(
               child: ListView.builder(
-                itemCount: widget.groupMembers.length,
-                itemBuilder: (context, index)  {
-                  return ListTile(
-                    leading: Icon(
-                          Icons.person,
-                        ),
-                        title: Text(widget.groupMembers[index]['name']
-                        ),
-                        subtitle: Text(
-                          "Members numbers if admin",
-                        ),
-                        trailing: Icon(
-                          Icons.chat,
-                        ),
-                  );
-                }
-                ),
+                  itemCount: widget.groupMembers.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.person,
+                      ),
+                      title: Text(
+                        widget.groupMembers[index]['name'],
+                      ),
+                      // subtitle: Text(
+                      //   widget.groupMembers[index]['authorization'],
+                      // ),
+                      trailing: Icon(
+                        Icons.chat,
+                      ),
+                    );
+                  }),
             ),
             ListTile(
-              // onTap: () async {
-              //   await _firestore.collection('users').doc(user.uid).delete();
-              //   Navigator.pop(context);
-              //   Future.delayed(Duration(seconds: 2)); 
-              //   Fluttertoast.showToast(
-              //     msg: "you left this group",
-              //   );
-              // },
+              onTap: leavegroupcheckingadmin,
+
               leading: Icon(
                 Icons.logout,
                 color: Colors.redAccent,

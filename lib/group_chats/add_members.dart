@@ -43,7 +43,6 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
         userMap = value.docs[0].data();
         isLoading = false;
       });
-      print(userMap);
     }); 
   }
 
@@ -54,12 +53,12 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
       "members": membersList,
     });
 
-    await _firestore
-        .collection('users')
-        .doc(userMap['uid'])
-        .collection('groups')
-        .doc(widget.groupChatId)
-        .set({"name": widget.name, "id": widget.groupChatId});
+    // await _firestore
+    //     .collection('groups')
+    //     .doc(userMap['uid'])
+    //     .collection('groups')
+    //     .doc(widget.groupChatId)
+    //     .set({"name": widget.name, "id": widget.groupChatId});
   }
 
   @override

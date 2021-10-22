@@ -19,27 +19,27 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
   bool isLoading = false;
   Map<String, dynamic> userMap;
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUserDetails();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getCurrentUserDetails();
+  // }
 
-  void getCurrentUserDetails() async {
-    await _firestore
-        .collection('users')
-        .doc(_auth.currentUser.uid)
-        .get()
-        .then((map) {
-      setState(() {
-        membersList.add({
-          "number": map['number'],
-          "uid": map['uid'],
-          "isAdmin": true,
-        });
-      });
-    });
-  }
+  // void getCurrentUserDetails() async {
+  //   await _firestore
+  //       .collection('users')
+  //       .doc(_auth.currentUser.uid)
+  //       .get()
+  //       .then((map) {
+  //     setState(() {
+  //       membersList.add({
+  //         "number": map['number'],
+  //         "uid": map['uid'],
+  //         "isAdmin": true,
+  //       });
+  //     });
+  //   });
+  // }
 
   void onSearch() async {
     setState(() {
@@ -74,9 +74,9 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
           "name": userMap['name'],
           "number": userMap['number'],
           "uid": userMap['uid'],
-          "authorization": userMap['authorization'],
+          // "authorization": userMap['authorization'],
         });
-
+        
         userMap = null;
       });
     }
@@ -113,7 +113,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                     onTap: () => onRemoveMembers(index),
                     leading: Icon(Icons.account_circle),
                     title: Text(membersList[index]['number']),
-                    subtitle: Text("name here"),
+                    subtitle: Text(membersList[index]['name']),
                     trailing: Icon(Icons.close),
                   );
                 },
@@ -157,12 +157,13 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                   ),
             userMap != null
                 ? ListTile(
-                    onTap: onResultTap,
-                    leading: Icon(Icons.account_box),
-                    title: Text(userMap['number']),
-                    subtitle: Text("name here"),
-                    trailing: Icon(Icons.add),
-                  )
+                      onTap: onResultTap,
+                      leading: Icon(Icons.account_box),
+                      title: Text(userMap['number']),
+                      subtitle: Text("Tap to select this Contact"),
+                      trailing: Icon(Icons.add),
+                    
+                )
                 : SizedBox(),
           ],
         ),

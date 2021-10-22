@@ -14,7 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isloading = false;
   final TextEditingController _search = TextEditingController();
   Map<String, dynamic> userMap;
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // String chatRoomId(String user1, user2) {
@@ -57,6 +56,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void contactadmin() {
+    Fluttertoast.showToast(msg: "You're already an Admin");
+  }
+
+  void contactadminfeature() async {
+     final user = context.read(authControllerProvider);
+    final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
+    if ( userFromUsersCollection.data()["authorization"] ) {
+      contactadmin();
+    } else {
+      Fluttertoast.showToast(msg: "Admin will be right back to you!");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: ListTile(
+                      onTap: contactadminfeature,
                             // onTap: () {
                             //   String roomId = chatRoomId(
                             // _auth.currentUser.phoneNumber,
@@ -101,10 +115,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             //     ),
                             //   );
                             // },
-                            leading: Icon(Icons.people),
+                            leading: Icon(Icons.verified_user, size: 25, color: Colors.lightBlue,),
                             title: Text('Contact Admin'),
                             subtitle: Text("Tap here to chat"),
-                            trailing: Icon(Icons.chat),
+                            trailing: Icon(Icons.chat, color: Colors.lightBlue,),
                           ),
                   ),
                   Container(
@@ -123,11 +137,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ElevatedButton(
                     onPressed: onSearch2,
                     child: Text(
-                      "search",
+                      "Search User",
                     ),
                   ),
                   userMap != null
                       ? ListTile(
+                        onTap: () {
+                          Fluttertoast.showToast(msg: "One on One chat Coming Soon");
+                        },
                           // onTap: () {
                           //   String roomId = chatRoomId(
                           // _auth.currentUser.phoneNumber,
@@ -144,9 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           //     ),
                           //   );
                           // },
-                          leading: Icon(Icons.verified_user),
-                          title: Text(userMap['number']),
-                          subtitle: Text("Name here"),
+                          leading: Icon(Icons.person, size: 30,),
+                          title: Text(userMap['name']),
+                          subtitle: Text("Tap here to Chat"),
                           trailing: Icon(Icons.chat),
                         )
                       : Container(),
