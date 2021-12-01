@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/src/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:flutterwhatsapp/group_chats/add_members.dart';
 // import 'package:flutterwhatsapp/services/auth_service.dart';
 
 class GroupInfo extends StatefulWidget {
@@ -139,18 +138,20 @@ class _GroupInfoState extends State<GroupInfo> {
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
     if (userFromUsersCollection.data()["authorization"]) {
-      Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AddMembersINGroup(
-          groupChatId: widget.groupId,
-          name: widget.groupName,
-          membersList: membersList,
-        ),
-      ),
-    );
+      Fluttertoast.showToast(msg: "working on it");
+    //   Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (_) => AddMembersINGroup(
+    //       groupChatId: widget.groupId,
+    //       name: widget.groupName,
+    //       membersList: membersList,
+    //     ),
+    //   ),
+    // );
     } else {
-      Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
+      Fluttertoast.showToast(msg: "Only Admin can Add Members to the Group");
     }
+    
   }
 
   //leaving group
@@ -160,7 +161,7 @@ class _GroupInfoState extends State<GroupInfo> {
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
     if (userFromUsersCollection.data()["authorization"]) {
-      Fluttertoast.showToast(msg: "You're an Admin, Can't Leave Group");
+      Fluttertoast.showToast(msg: "Administrators can't Leave this Group");
     } else {
       await _firestore.collection('groups').doc(widget.groupId).update({
         'members': widget.groupMembers
@@ -176,8 +177,9 @@ class _GroupInfoState extends State<GroupInfo> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
+      
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text("Group Info"),
       ),
       body: Container(
@@ -194,7 +196,7 @@ class _GroupInfoState extends State<GroupInfo> {
                     width: size.height / 11,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.grey,
+                      color: Colors.red,
                     ),
                     child: Icon(
                       Icons.group,
@@ -220,7 +222,6 @@ class _GroupInfoState extends State<GroupInfo> {
                 ],
               ),
             ),
-
             // members length
             Container(
               width: size.width / 1.1,
@@ -240,7 +241,8 @@ class _GroupInfoState extends State<GroupInfo> {
             ListTile(
               onTap: addingmemberstogrouprules,
               leading: Icon(
-                Icons.add,
+                Icons.add_circle,
+                      color: Colors.redAccent,
               ),
               title: Text(
                 "Add Members",
@@ -281,6 +283,7 @@ class _GroupInfoState extends State<GroupInfo> {
                     return ListTile(
                       leading: Icon(
                         Icons.person,
+                      color: Colors.redAccent,
                       ),
                       title: Text(
                         widget.groupMembers[index]['name'],
@@ -290,6 +293,7 @@ class _GroupInfoState extends State<GroupInfo> {
                       // ),
                       trailing: Icon(
                         Icons.chat,
+                      color: Colors.redAccent,
                       ),
                     );
                   }),

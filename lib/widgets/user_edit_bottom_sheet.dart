@@ -35,12 +35,13 @@ class UserEditBottomSheet extends HookWidget {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         helperText: 'What should we call you?',
+                        focusColor: Colors.redAccent,
                         border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       hintText: "Enter New Name",
                         helperStyle: TextStyle(
-                          color: Colors.deepPurple,
+                          color: Colors.redAccent,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -51,7 +52,7 @@ class UserEditBottomSheet extends HookWidget {
                 Padding(
                   padding: EdgeInsets.all(30),
                   child: MaterialButton(
-                    color: Colors.lightBlue,
+                    color: Colors.redAccent,
                     child: Text("Update"),
                     onPressed: () async {
                       isLoading.value = true;

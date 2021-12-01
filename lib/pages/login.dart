@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: Colors.lightBlue,
+                          color: Colors.redAccent,
                         ),
                         height: 65,
                         width: 180,
@@ -82,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                         height: 30,
                       ),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(primary: Colors.redAccent),
                         onPressed: () async {
                           final phone = _phoneNumber.text.trim();
                           await context

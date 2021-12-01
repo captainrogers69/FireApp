@@ -46,7 +46,7 @@ class AuthenticationService implements BaseAuthenticationService {
               .collection('users')
               .where("number", isEqualTo: user.phoneNumber)
               .get();
-              Fluttertoast.showToast(msg: "Login Succesful");
+              // Fluttertoast.showToast(msg: "Login Succesful");
 
           if (userInCollection.docs.isEmpty) {
             await _read(firestoreProvider).collection('users').doc(user.uid).set({
@@ -56,7 +56,8 @@ class AuthenticationService implements BaseAuthenticationService {
               "authorization" : false,
             });
           } else {
-            Fluttertoast.showToast(msg: "Account Created");
+            Fluttertoast.showToast(msg: "Login Succesful");
+            // Fluttertoast.showToast(msg: "Account Created");
           }
         } else {
           print("Error");
@@ -86,7 +87,7 @@ class AuthenticationService implements BaseAuthenticationService {
                   FlatButton(
                     child: Text("Confirm"),
                     textColor: Colors.white,
-                    color: Colors.blue,
+                    color: Colors.redAccent,
                     onPressed: () async {
                       final code = _codeController.text.trim();
                       AuthCredential credential = PhoneAuthProvider.credential(

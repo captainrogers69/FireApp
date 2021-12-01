@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class AddMembersINGroup extends StatefulWidget {
@@ -19,6 +20,7 @@ class AddMembersINGroup extends StatefulWidget {
 class _AddMembersINGroupState extends State<AddMembersINGroup> {
   final TextEditingController _search = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, dynamic> userMap;
   bool isLoading = false;
   List membersList = [];
@@ -47,12 +49,14 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
   }
 
   void onAddMembers() async {
-    membersList.add(userMap);
+    widget.membersList.add(userMap);
 
     await _firestore.collection('groups').doc(widget.groupChatId).update({
-      "members": membersList,
+      "members": widget.membersList,
+      
     });
-
+    Fluttertoast.showToast(msg: "Member has been added to the group");
+setState(() {});
     // await _firestore
     //     .collection('groups')
     //     .doc(userMap['uid'])
@@ -61,6 +65,8 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
     //     .set({"name": widget.name, "id": widget.groupChatId});
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -68,7 +74,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
-        title: Text("Add Members"),
+        title: Text("Add Members to "+ widget.name),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -86,6 +92,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
                 width: size.width / 1.15,
                 child: TextField(
                   controller: _search,
+                  keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     hintText: "Search",
                     border: OutlineInputBorder(
