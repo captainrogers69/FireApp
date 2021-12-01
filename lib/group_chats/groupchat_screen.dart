@@ -27,7 +27,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       //   tooltip: "Create Group",
       // ),
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text("Groups Available"),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -82,16 +82,18 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                       ),
                     );
                   } else {
-                    Fluttertoast.showToast(msg: "Youre not in this group");
+                    Fluttertoast.showToast(msg: "You're not in this group");
                   }
                 },
                 leading: Icon(
                   Icons.verified_user,
+                      color: Colors.redAccent,
                 ),
                 title: Text(data['groupname']),
                 subtitle: Text(data['grpdetail']),
                 trailing: Icon(
                   Icons.chat,
+                      color: Colors.redAccent,
                 ),
               );
             }).toList(),

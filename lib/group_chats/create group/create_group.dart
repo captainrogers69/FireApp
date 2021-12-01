@@ -44,7 +44,7 @@ class _CreateGroupState extends State<CreateGroup> {
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => WhatsAppHome()), (route) => false);
 
-    await Fluttertoast.showToast(msg: "Group Created Now");
+    await Fluttertoast.showToast(msg: "Group has been Created");
   }
 
   @override
@@ -53,7 +53,7 @@ class _CreateGroupState extends State<CreateGroup> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text("Group Name"),
       ),
       body: isLoading
@@ -90,6 +90,7 @@ class _CreateGroupState extends State<CreateGroup> {
                   height: size.height / 50,
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.redAccent),
                   onPressed: createGroup,
                   child: Text("Create Group"),
                 ),

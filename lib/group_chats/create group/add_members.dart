@@ -55,7 +55,6 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
         userMap = value.docs[0].data();
         isLoading = false;
       });
-      print(userMap);
     });
   }
 
@@ -96,7 +95,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text("Add Members"),
       ),
       body: SingleChildScrollView(
@@ -152,6 +151,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.redAccent),
                     onPressed: onSearch,
                     child: Text("Search"),
                   ),
@@ -170,6 +170,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
       ),
       floatingActionButton: membersList.length >= 2
           ? FloatingActionButton(
+            backgroundColor: Colors.redAccent,
               child: Icon(Icons.forward),
               onPressed: () async {
               Navigator.of(context).push(

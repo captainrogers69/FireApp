@@ -23,7 +23,6 @@ class GroupChatRoom extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
   File imageFile;
 
   Future getImage() async {
@@ -106,7 +105,7 @@ class GroupChatRoom extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text(groupName),
         actions: [
           IconButton(
@@ -187,20 +186,31 @@ class GroupChatRoom extends StatelessWidget {
                         child: TextField(
                           controller: _message,
                           decoration: InputDecoration(
+                            
                             suffixIcon: IconButton(
                               onPressed: () => getImage(),
-                              icon: Icon(Icons.photo),
+                              icon: Icon(
+                                Icons.photo,
+                                color: Colors.redAccent,
+                              ),
                             ),
                             hintText: "Send Message",
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: onSendMessage,
+                      SizedBox(width: 5),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.send),
+                          onPressed: onSendMessage,
+                        ),
                       ),
                     ],
                   ),
@@ -221,12 +231,12 @@ class GroupChatRoom extends StatelessWidget {
           alignment: chatMap['sendBy'] == _auth.currentUser.displayName
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          child: Container( 
+          child: Container(
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.blue,
+                color: Colors.redAccent,
               ),
               child: Column(
                 children: [
@@ -265,17 +275,16 @@ class GroupChatRoom extends StatelessWidget {
             child: Image.network(
               chatMap['message'],
               fit: BoxFit.cover,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                      ),
-                    );
-                  },
-
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent loadingProgress) {
+                if (loadingProgress == null) return child;
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                  ),
+                );
+              },
             ),
           ),
         );

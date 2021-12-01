@@ -57,7 +57,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
       onWillPop: () async => false,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.redAccent,
           title: Text("KiyaKonnect"),
           automaticallyImplyLeading: false,
           elevation: 0.7,
@@ -108,17 +108,23 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                SizedBox(height: 15),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     TextButton(
+                                      style: TextButton.styleFrom(
+                                        primary: Colors.redAccent,
+                                      ),
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
                                       child: Text("Cancel"),
                                     ),
                                     ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          primary: Colors.redAccent),
                                       onPressed: () async {
                                         await context
                                             .read(authenticationServiceProvider)

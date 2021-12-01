@@ -56,15 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void contactadmin() {
-    Fluttertoast.showToast(msg: "You're already an Admin");
-  }
-
   void contactadminfeature() async {
      final user = context.read(authControllerProvider);
     final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
     if ( userFromUsersCollection.data()["authorization"] ) {
-      contactadmin();
+      Fluttertoast.showToast(msg: "You're an Administrator");
     } else {
       Fluttertoast.showToast(msg: "Admin will be right back to you!");
     }
@@ -74,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.redAccent,
         child: Icon(Icons.group),
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
@@ -115,10 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             //     ),
                             //   );
                             // },
-                            leading: Icon(Icons.verified_user, size: 25, color: Colors.lightBlue,),
+                            leading: Icon(Icons.verified_user, size: 25, color: Colors.redAccent,),
                             title: Text('Contact Admin'),
                             subtitle: Text("Tap here to chat"),
-                            trailing: Icon(Icons.chat, color: Colors.lightBlue,),
+                            trailing: Icon(Icons.chat, color: Colors.redAccent,),
                           ),
                   ),
                   Container(
@@ -135,6 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.redAccent
+                    ),
                     onPressed: onSearch2,
                     child: Text(
                       "Search User",

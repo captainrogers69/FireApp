@@ -62,11 +62,13 @@ class UserAdmin extends HookWidget {
                   return ListTile(
                     leading: Icon(
                       Icons.verified_user,
+                      color: Colors.redAccent,
                     ),
                     title: Text(data['name']),
                     subtitle: Text(data['number']),
                     trailing: Icon(
                       Icons.chat,
+                      color: Colors.redAccent,
                     ),
                   );
                 }).toList(),
