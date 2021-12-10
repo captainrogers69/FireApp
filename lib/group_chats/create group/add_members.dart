@@ -4,14 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/create%20group/create_group.dart';
 
-class AddMembersInGroup extends StatefulWidget {
-  const AddMembersInGroup({Key key}) : super(key: key);
+class AddMembersinNewGroup extends StatefulWidget {
+  const AddMembersinNewGroup({Key key}) : super(key: key);
 
   @override
-  State<AddMembersInGroup> createState() => _AddMembersInGroupState();
+  State<AddMembersinNewGroup> createState() => _AddMembersinNewGroupState();
 }
 
-class _AddMembersInGroupState extends State<AddMembersInGroup> {
+class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
   final TextEditingController _search = TextEditingController();
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,27 +19,6 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
   bool isLoading = false;
   Map<String, dynamic> userMap;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getCurrentUserDetails();
-  // }
-
-  // void getCurrentUserDetails() async {
-  //   await _firestore
-  //       .collection('users')
-  //       .doc(_auth.currentUser.uid)
-  //       .get()
-  //       .then((map) {
-  //     setState(() {
-  //       membersList.add({
-  //         "number": map['number'],
-  //         "uid": map['uid'],
-  //         "isAdmin": true,
-  //       });
-  //     });
-  //   });
-  // }
 
   void onSearch() async {
     setState(() {
@@ -96,7 +75,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
-        title: Text("Add Members"),
+        title: Text("Add Members to New Group"),
       ),
       body: SingleChildScrollView(
         child: Column(

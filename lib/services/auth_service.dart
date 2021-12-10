@@ -19,7 +19,11 @@ final authenticationServiceProvider =
 class AuthenticationService implements BaseAuthenticationService {
   final Reader _read;
 
-  const AuthenticationService(this._read);
+  const AuthenticationService(this._read
+  
+  )
+  
+  ;
 
   @override
   String getCurrentUID() => _read(firebaseAuthProvider).currentUser.uid;
@@ -53,10 +57,11 @@ class AuthenticationService implements BaseAuthenticationService {
 
             await _read(firestoreProvider).collection('users').doc(user.uid).set({
               "number": phone,
-              "name": "",
+              "name": "unknown",
               "status": "offline",
               "authorization" : false,
             });
+            Navigator.pop(context);
           } else {
             Fluttertoast.showToast(msg: "Login Succesful");
             // Fluttertoast.showToast(msg: "Account Created");
@@ -78,9 +83,23 @@ class AuthenticationService implements BaseAuthenticationService {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    Text("OTP sent to " + phone.toString()),
                     TextField(
                       keyboardType: TextInputType.phone,
                       controller: _codeController,
+                      decoration: InputDecoration(
+                        // helperText: 'OTP',
+                        focusColor: Colors.redAccent,
+                        border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      hintText: "Enter Code here",
+                      //   helperStyle: TextStyle(
+                      //     color: Colors.redAccent,
+                      //     fontWeight: FontWeight.bold,
+                      //     fontSize: 14,
+                      //   ),
+                      ),
                     ),
                   ],
                 ),
@@ -111,15 +130,14 @@ class AuthenticationService implements BaseAuthenticationService {
                               .collection('users')
 
                               .doc(user.uid).set({
-                            "name": "",
+                            "name": "unknown",
                             "number": phone,
                             "status": "offline",
                             "authorization" : false,
                           });
-
                           Navigator.pop(context);
                         } else {
-                          Fluttertoast.showToast(msg: "Account Created");
+                          Fluttertoast.showToast(msg: "Login Succesful");
                         }
                       } else {
                         print("Error");

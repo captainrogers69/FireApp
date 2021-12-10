@@ -3,14 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatRoom extends HookWidget {
-  final Map<String, dynamic> userMap;
   final String chatRoomId;
+  final String sender;
+  final String reciever;
 
-  ChatRoom({this.chatRoomId, this.userMap});
+  ChatRoom({this.chatRoomId, this.sender, this.reciever});
 
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -25,12 +24,21 @@ class ChatRoom extends HookWidget {
         "time": FieldValue.serverTimestamp()
       };
 
-      _message.clear();
+
+      await _firestore
+          .collection('chatroom').doc(chatRoomId)
+          .set({
+            "sender": sender,
+            "reciever": reciever,
+          });
+    
       await _firestore
           .collection('chatroom')
           .doc(chatRoomId)
           .collection('chats')
           .add(messages);
+
+    _message.clear();      
     } else {
       print("Enter Some Text");
       Fluttertoast.showToast(msg: "404! Task incomplete");
@@ -39,32 +47,10 @@ class ChatRoom extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authControllerState = useProvider(authControllerProvider);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
-        title: Text(authControllerState.displayName),
-// StreamBuilder<DocumentSnapshot>(
-//           stream:
-//               _firestore.collection("users").doc(userMap['uid']).snapshots(),
-//           builder: (context, snapshot) {
-//             if (snapshot.data != null) {
-//               return Container(
-//                 child: Column(
-//                   children: [
-//                     Text(userMap['name']),
-//                     Text(
-//                       snapshot.data!['status'],
-//                       style: TextStyle(fontSize: 14),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             } else {
-//               return Container();
-//             }
-//           },
-//         ),
+        backgroundColor: Colors.redAccent,
+        title: Text(sender),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -106,22 +92,29 @@ class ChatRoom extends HookWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height / 12,
+                      height: MediaQuery.of(context).size.height / 17,
                       width: MediaQuery.of(context).size.width / 1.3,
                       child: TextField(
                         controller: _message,
                         decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.photo,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          hintText: "Type a message",
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                       ),
                     ),
                     Container(
-                      height: MediaQuery.of(context).size.height / 14,
                       decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(35),
                       ),
                       child: IconButton(
                         onPressed: onSendMessage,
@@ -150,8 +143,8 @@ class ChatRoom extends HookWidget {
         ),
         width: MediaQuery.of(context).size.width,
         alignment: map['sendby'] == _auth.currentUser.displayName
-            ? Alignment.centerLeft
-            : Alignment.centerRight,
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
         child: Container(
           padding: EdgeInsets.symmetric(
             vertical: 10,
@@ -163,7 +156,7 @@ class ChatRoom extends HookWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: Colors.deepPurple,
+            color: Colors.redAccent
           ),
           child: Text(
             map['message'],
