@@ -24,21 +24,18 @@ class ChatRoom extends HookWidget {
         "time": FieldValue.serverTimestamp()
       };
 
+      await _firestore.collection('chatroom').doc(chatRoomId).set({
+        "sender": sender,
+        "reciever": reciever,
+      });
 
-      await _firestore
-          .collection('chatroom').doc(chatRoomId)
-          .set({
-            "sender": sender,
-            "reciever": reciever,
-          });
-    
       await _firestore
           .collection('chatroom')
           .doc(chatRoomId)
           .collection('chats')
           .add(messages);
 
-    _message.clear();      
+      _message.clear();
     } else {
       print("Enter Some Text");
       Fluttertoast.showToast(msg: "404! Task incomplete");
@@ -50,7 +47,7 @@ class ChatRoom extends HookWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
-        title: Text(sender),
+        title: Text(reciever),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -97,13 +94,13 @@ class ChatRoom extends HookWidget {
                       child: TextField(
                         controller: _message,
                         decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.photo,
-                                color: Colors.redAccent,
-                              ),
-                            ),
+                          // suffixIcon: IconButton(
+                          //   onPressed: () {},
+                          //   icon: Icon(
+                          //     Icons.photo,
+                          //     color: Colors.redAccent,
+                          //   ),
+                          // ),
                           hintText: "Type a message",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
@@ -123,7 +120,6 @@ class ChatRoom extends HookWidget {
                         ),
                       ),
                     ),
-                    // ),
                   ],
                 ),
               ),
@@ -131,42 +127,63 @@ class ChatRoom extends HookWidget {
           ],
         ),
       ),
-      // bottomNavigationBar:
     );
   }
 
   Widget messages(BuildContext context, Map<String, dynamic> map) {
     return Container(
-        padding: EdgeInsets.only(
-          top: 3,
-          right: 3,
+      padding: EdgeInsets.only(
+        top: 3,
+        right: 3,
+      ),
+      width: MediaQuery.of(context).size.width,
+      alignment: map['sendby'] == _auth.currentUser.displayName
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 14,
         ),
-        width: MediaQuery.of(context).size.width,
-        alignment: map['sendby'] == _auth.currentUser.displayName
-            ? Alignment.centerRight
-            : Alignment.centerLeft,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 14,
+        margin: EdgeInsets.symmetric(
+          vertical: 5,
+          horizontal: 8,
+        ),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15), color: Colors.redAccent),
+        child: Text(
+          map['message'],
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
           ),
-          margin: EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: 8,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            color: Colors.redAccent
-          ),
-          child: Text(
-            map['message'],
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
-          ),
-        ));
+        ),
+      ),
+    );
+  }
+}
+
+class ShowImageSingle extends StatelessWidget {
+  final String imageUrl;
+
+  const ShowImageSingle({
+    @required this.imageUrl,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      body: Container(
+        height: size.height,
+        width: size.width,
+        color: Colors.black,
+        child: Image.network(imageUrl),
+      ),
+    );
   }
 }
 
