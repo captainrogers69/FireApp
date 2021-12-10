@@ -70,8 +70,9 @@ adminList = userFromUsersCollection.docs;
                     builder: (context) => ChatRoom(
                         chatRoomId: chatRoomIdGenerated,
                         sender: data['number'],
-                        reciever:
-                            context.read(authControllerProvider).phoneNumber),
+                        reciever: data['name']
+                            // context.read(authControllerProvider).phoneNumber
+                            ),
                   ),
                 );
               }, //initiate one on one chat
@@ -80,7 +81,7 @@ adminList = userFromUsersCollection.docs;
                 color: Colors.redAccent,
               ),
               title: Text(data['name']),
-              subtitle: Text(data['number']),
+              subtitle: Text("Tap here to chat to admin"),
               trailing: Icon(
                 Icons.chat,
                 color: Colors.redAccent,

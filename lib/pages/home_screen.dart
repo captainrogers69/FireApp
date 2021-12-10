@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (_) => ChatRoom(
                                       chatRoomId: roomId,
                                       sender: _auth.currentUser.phoneNumber,
-                                      reciever: userMap['number'],
+                                      reciever: userMap['name'],
                                     ),
                                   ),
                                 );
