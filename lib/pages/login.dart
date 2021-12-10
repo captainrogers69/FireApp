@@ -45,6 +45,8 @@ class _LoginPageState extends State<LoginPage> {
                             "KiyaKonnect",
                             style: TextStyle(
                               fontSize: 25,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.bold
                             ),
                           ),
                         ),

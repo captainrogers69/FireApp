@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/group_chats/group_info.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
@@ -186,7 +187,6 @@ class GroupChatRoom extends StatelessWidget {
                         child: TextField(
                           controller: _message,
                           decoration: InputDecoration(
-                            
                             suffixIcon: IconButton(
                               onPressed: () => getImage(),
                               icon: Icon(
@@ -232,6 +232,9 @@ class GroupChatRoom extends StatelessWidget {
               ? Alignment.centerRight
               : Alignment.centerLeft,
           child: Container(
+            constraints: BoxConstraints(
+              maxWidth: 200,
+            ),
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
@@ -239,6 +242,7 @@ class GroupChatRoom extends StatelessWidget {
                 color: Colors.redAccent,
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     chatMap['sendBy'],
@@ -269,22 +273,33 @@ class GroupChatRoom extends StatelessWidget {
               ? Alignment.centerRight
               : Alignment.centerLeft,
           child: Container(
+            constraints: BoxConstraints(
+              maxWidth: 300,
+            ),
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             height: size.height / 2.5,
-            child: Image.network(
-              chatMap['message'],
-              fit: BoxFit.cover,
-              loadingBuilder: (BuildContext context, Widget child,
-                  ImageChunkEvent loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                  ),
-                );
+            child: GestureDetector(
+              onTap: () {
+                Fluttertoast.showToast(msg: "Zoom view coming soon");
               },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  chatMap['message'],
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         );

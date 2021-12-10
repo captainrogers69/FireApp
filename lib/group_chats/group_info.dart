@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/src/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+import 'package:flutterwhatsapp/group_chats/add_members.dart';
 // import 'package:flutterwhatsapp/services/auth_service.dart';
 
 class GroupInfo extends StatefulWidget {
@@ -23,131 +24,29 @@ class GroupInfo extends StatefulWidget {
 class _GroupInfoState extends State<GroupInfo> {
   List membersList = [];
   bool isLoading = true;
-
-  // @override
-  // void initState() async {
-
-  //   final data2 = await context
-  //                   .read(firestoreProvider)
-  //                   .collection('groups')
-  //                   .get();
-
-  //   setState(() {
-  //     membersList = data2.docs.
-  //   });
-  //   super.initState();
-  // }
-
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getGroupDetails();
-  // }
 
-  // Future getGroupDetails() async {
-  //   await _firestore.collection('groups').doc()
-  // }
 
-  // bool checkAdmin() {
-  //   bool isAdmin = false;
+@override
+  void initState() {
+    super.initState();
+    membersList = widget.groupMembers;
+  }
 
-  //   membersList.forEach((element) {
-  //     if (element['uid'] == _auth.currentUser.uid) {
-  //       isAdmin = element['isAdmin'];
-  //     }
-  //   });
-  //   return isAdmin;
-  // }
-
-  // Future removeMembers(int index) async {
-  //   String uid = membersList[index]['uid'];
-
-  //   setState(() {
-  //     isLoading = true;
-  //     membersList.removeAt(index);
-  //   });
-
-  //   await _firestore.collection('groups').doc(widget.groupId).update({
-  //     "members": membersList,
-  //   }).then((value) async {
-  //     await _firestore
-  //         .collection('users')
-  //         .doc(uid)
-  //         .collection('groups')
-  //         .doc(widget.groupId)
-  //         .delete();
-
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   });
-  // }
-
-  // void showDialogBox(int index) {
-  //   if (checkAdmin()) {
-  //     if (_auth.currentUser.uid != membersList[index]['uid']) {
-  //       showDialog(
-  //           context: context,
-  //           builder: (context) {
-  //             return AlertDialog(
-  //               content: ListTile(
-  //                 onTap: () => removeMembers(index),
-  //                 title: Text("Remove This Member"),
-  //               ),
-  //             );
-  //           });
-  //     }
-  //   }
-  // }
-
-  // Future onLeaveGroup() async {
-  //   if (!checkAdmin()) {
-  //     setState(() {
-  //       isLoading = true;
-  //     });
-
-  //     for (int i = 0; i < membersList.length; i++) {
-  //       if (membersList[i]['uid'] == _auth.currentUser.uid) {
-  //         membersList.removeAt(i);
-  //       }
-  //     }
-
-  //     await _firestore.collection('groups').doc(widget.groupId).update({
-  //       "members": membersList,
-  //     });
-
-  //     await _firestore
-  //         .collection('users')
-  //         .doc(_auth.currentUser.uid)
-  //         .collection('groups')
-  //         .doc(widget.groupId)
-  //         .delete();
-
-  //     Navigator.of(context).pushAndRemoveUntil(
-  //       MaterialPageRoute(builder: (_) => WhatsAppHome()),
-  //       (route) => false,
-  //     );
-  //   }
-  // }
-
-  //adding new members to the group
 
     addingmemberstogrouprules() async {
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
     if (userFromUsersCollection.data()["authorization"]) {
-      Fluttertoast.showToast(msg: "working on it");
-    //   Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (_) => AddMembersINGroup(
-    //       groupChatId: widget.groupId,
-    //       name: widget.groupName,
-    //       membersList: membersList,
-    //     ),
-    //   ),
-    // );
+      
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AddMembersINGroup(
+        name: widget.groupName, 
+        membersList: membersList, 
+        groupChatId: widget.groupId
+        ),
+        ),
+        );
     } else {
       Fluttertoast.showToast(msg: "Only Admin can Add Members to the Group");
     }
@@ -173,6 +72,7 @@ class _GroupInfoState extends State<GroupInfo> {
     }
   }
 
+  
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -252,30 +152,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 ),
               ),
             ),
-            // Flexible(
-            //   child: ListView.builder(
-            //     itemCount: membersList.length,
-            //     shrinkWrap: true,
-            //     physics: NeverScrollableScrollPhysics(),
-            //     itemBuilder: (context, index) {
-            //       return ListTile(
-            //         // onTap: () => showDialogBox(index),
-            //         leading: Icon(Icons.account_circle),
-            //         title: Text(
-            //           "mayank",
-            //           // membersList[index]['name'],
-            //           style: TextStyle(
-            //             fontSize: size.width / 22,
-            //             fontWeight: FontWeight.w500,
-            //           ),
-            //         ),
-            //         subtitle: Text(membersList[index]['number']),
-            //         trailing:
-            //             Text(membersList[index]['isAdmin'] ? "Admin" : ""),
-            //       );
-            //     },
-            //   ),
-            // ),
+          
             Expanded(
               child: ListView.builder(
                   itemCount: widget.groupMembers.length,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -20,7 +21,7 @@ class AddMembersINGroup extends StatefulWidget {
 class _AddMembersINGroupState extends State<AddMembersINGroup> {
   final TextEditingController _search = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // FirebaseAuth _auth = FirebaseAuth.instance;
+ final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, dynamic> userMap;
   bool isLoading = false;
   List membersList = [];
@@ -49,22 +50,33 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
   }
 
   void onAddMembers() async {
-    widget.membersList.add(userMap);
+
+     setState(() {
+        membersList.add({
+          "name": userMap['name'],
+          "number": userMap['number'],
+          "uid": userMap['uid'],
+        });
+        
+        userMap = null;
+      });
 
     await _firestore.collection('groups').doc(widget.groupChatId).update({
-      "members": widget.membersList,
+      "members": membersList,
       
     });
     Fluttertoast.showToast(msg: "Member has been added to the group");
-setState(() {});
-    // await _firestore
-    //     .collection('groups')
-    //     .doc(userMap['uid'])
-    //     .collection('groups')
-    //     .doc(widget.groupChatId)
-    //     .set({"name": widget.name, "id": widget.groupChatId});
+setState(()  {});
+    
   }
 
+void onRemoveMembers(int index) {
+    if (membersList[index]['uid'] != _auth.currentUser.uid) {
+      setState(() {
+        membersList.removeAt(index);
+      });
+    }
+  }
 
 
   @override
@@ -73,13 +85,29 @@ setState(() {});
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.redAccent,
         title: Text("Add Members to "+ widget.name),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+             Flexible(
+              child: ListView.builder(
+                itemCount: membersList.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () => onRemoveMembers(index),
+                    leading: Icon(Icons.account_circle),
+                    title: Text(membersList[index]['number']),
+                    subtitle: Text(membersList[index]['name']),
+                    trailing: Icon(Icons.close),
+                  );
+                },
+              ),
+            ),
             SizedBox(
               height: size.height / 20,
             ),
@@ -113,6 +141,9 @@ setState(() {});
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.redAccent
+                  ),
                     onPressed: onSearch,
                     child: Text("Search"),
                   ),

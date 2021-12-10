@@ -6,29 +6,13 @@ import 'package:flutterwhatsapp/group_chats/group_chat_room.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutterwhatsapp/general_providers.dart';
 
-class GroupChatHomeScreen extends StatefulWidget {
-  const GroupChatHomeScreen({Key key}) : super(key: key);
-
-  @override
-  _GroupChatHomeScreenState createState() => _GroupChatHomeScreenState();
-}
-
-class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
+class GroupChatHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.create),
-      //   onPressed: () => Navigator.of(context).push(
-      //     MaterialPageRoute(
-      //       builder: (_) => AddMembersInGroup(),
-      //     ),
-      //   ),
-      //   tooltip: "Create Group",
-      // ),
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
-        title: Text("Groups Available"),
+        title: Text("Yours Groups"),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream:
@@ -65,37 +49,43 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
             children: snapshot.data.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
-              return ListTile(
-                onTap: () async {
-                  final user = context.read(authControllerProvider);
-                  final isUserinMemberslist =
-                      data['members'].map((data) => data['number']).contains(user.phoneNumber);
-                  if (isUserinMemberslist) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => GroupChatRoom(
-                          memberslist: data['members'],
-                          message: data['message'],
-                          groupName: data['groupname'],
-                          groupChatId: document.id,
+              final user = context.read(authControllerProvider);
+              final isUserinMemberslist = data['members']
+                  .map((data) => data['number'])
+                  .contains(user.phoneNumber);
+
+              if (isUserinMemberslist) {
+                return ListTile(
+                  onTap: () async {
+                    if (isUserinMemberslist) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => GroupChatRoom(
+                            memberslist: data['members'],
+                            message: data['message'],
+                            groupName: data['groupname'],
+                            groupChatId: document.id,
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    Fluttertoast.showToast(msg: "You're not in this group");
-                  }
-                },
-                leading: Icon(
-                  Icons.verified_user,
-                      color: Colors.redAccent,
-                ),
-                title: Text(data['groupname']),
-                subtitle: Text(data['grpdetail']),
-                trailing: Icon(
-                  Icons.chat,
-                      color: Colors.redAccent,
-                ),
-              );
+                      );
+                    } else {
+                      Fluttertoast.showToast(msg: "You're not in this group");
+                    }
+                  },
+                  leading: Icon(
+                    Icons.verified_user,
+                    color: Colors.redAccent,
+                  ),
+                  title: Text(data['groupname']),
+                  subtitle: Text(data['grpdetail']),
+                  trailing: Icon(
+                    Icons.chat,
+                    color: Colors.redAccent,
+                  ),
+                );
+              } else {
+                return Container();
+              }
             }).toList(),
           );
         },
