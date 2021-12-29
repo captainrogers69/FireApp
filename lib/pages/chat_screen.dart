@@ -46,7 +46,7 @@ class ChatRoom extends HookWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.red,
         title: Text(reciever),
       ),
       body: SingleChildScrollView(
@@ -98,7 +98,7 @@ class ChatRoom extends HookWidget {
                           //   onPressed: () {},
                           //   icon: Icon(
                           //     Icons.photo,
-                          //     color: Colors.redAccent,
+                          //     color: Colors.red,
                           //   ),
                           // ),
                           hintText: "Type a message",
@@ -110,7 +110,7 @@ class ChatRoom extends HookWidget {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.redAccent,
+                        color: Colors.red,
                         borderRadius: BorderRadius.circular(35),
                       ),
                       child: IconButton(
@@ -150,7 +150,7 @@ class ChatRoom extends HookWidget {
           horizontal: 8,
         ),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15), color: Colors.redAccent),
+            borderRadius: BorderRadius.circular(15), color: Colors.red),
         child: Text(
           map['message'],
           style: TextStyle(

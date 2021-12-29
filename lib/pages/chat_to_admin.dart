@@ -51,7 +51,7 @@ adminList = userFromUsersCollection.docs;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.red,
         title: Text("Choose admin to chat"),
       ),
       body: Column(
@@ -78,13 +78,13 @@ adminList = userFromUsersCollection.docs;
               }, //initiate one on one chat
               leading: Icon(
                 Icons.verified_user,
-                color: Colors.redAccent,
+                color: Colors.red,
               ),
               title: Text(data['name']),
               subtitle: Text("Tap here to chat to admin"),
               trailing: Icon(
                 Icons.chat,
-                color: Colors.redAccent,
+                color: Colors.red,
               ),
             );
           }).toList())),

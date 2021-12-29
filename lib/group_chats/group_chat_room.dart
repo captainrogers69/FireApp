@@ -1,15 +1,16 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:async';
 import 'package:flutterwhatsapp/group_chats/group_info.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
-// ignore_for_file: must_be_immutable
-class GroupChatRoom extends StatelessWidget {
+class GroupChatRoom extends StatefulWidget {
   final String groupChatId, groupName, message;
   final List memberslist;
   GroupChatRoom({
@@ -20,11 +21,31 @@ class GroupChatRoom extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  @override
+  State<GroupChatRoom> createState() => _GroupChatRoomState();
+}
+
+class _GroupChatRoomState extends State<GroupChatRoom> {
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   File imageFile;
+  // String _fileName;
+  // String _saveAsFileName;
+  // List<PlatformFile> _paths;
+  // String _directoryPath;
+  // String _extension;
+  // bool _isLoading = false;
+  // bool _userAborted = false;
+  // bool _multiPick = false;
+  // FileType _pickingType = FileType.any;
+  // TextEditingController _controller = TextEditingController();
+
+// @override
+//   void initState() {
+//     super.initState();
+//     _controller.addListener(() => _extension = _controller.text);
+//   }
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -43,7 +64,7 @@ class GroupChatRoom extends StatelessWidget {
 
     await _firestore
         .collection('groups')
-        .doc(groupChatId)
+        .doc(widget.groupChatId)
         .collection('chats')
         .doc(fileName)
         .set({
@@ -59,7 +80,7 @@ class GroupChatRoom extends StatelessWidget {
     var uploadTask = await ref.putFile(imageFile).catchError((error) async {
       await _firestore
           .collection('groups')
-          .doc(groupChatId)
+          .doc(widget.groupChatId)
           .collection('chats')
           .doc(fileName)
           .delete();
@@ -72,7 +93,7 @@ class GroupChatRoom extends StatelessWidget {
 
       await _firestore
           .collection('groups')
-          .doc(groupChatId)
+          .doc(widget.groupChatId)
           .collection('chats')
           .doc(fileName)
           .update({"message": imageUrl});
@@ -94,10 +115,18 @@ class GroupChatRoom extends StatelessWidget {
 
       await _firestore
           .collection('groups')
-          .doc(groupChatId)
+          .doc(widget.groupChatId)
           .collection('chats')
           .add(chatData);
     }
+  }
+///////////////////////////////upload filess
+  void openFile(PlatformFile file) {
+    OpenFile.open(file.path);
+  }
+  // ignore: missing_return
+  Future<File> _saveAsFileName(PlatformFile file ) async {
+    // final 
   }
 
   @override
@@ -106,16 +135,16 @@ class GroupChatRoom extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
-        title: Text(groupName),
+        backgroundColor: Colors.red,
+        title: Text(widget.groupName),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => GroupInfo(
-                  groupMembers: memberslist,
-                  groupName: groupName,
-                  groupId: groupChatId,
+                  groupMembers: widget.memberslist,
+                  groupName: widget.groupName,
+                  groupId: widget.groupChatId,
                 ),
               ),
             ),
@@ -145,7 +174,7 @@ class GroupChatRoom extends StatelessWidget {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('groups')
-                      .doc(groupChatId)
+                      .doc(widget.groupChatId)
                       .collection('chats')
                       .orderBy('time')
                       .snapshots(),
@@ -182,21 +211,54 @@ class GroupChatRoom extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        height: size.height / 17,
+                        height: size.height / 15,
                         width: size.width / 1.3,
                         child: TextField(
                           controller: _message,
                           decoration: InputDecoration(
+                            prefixIcon: IconButton(
+                              onPressed: () async {
+                                final result = await FilePicker.platform.pickFiles();
+                                if (result == null) return;
+
+                                final file = result.files.first;
+                                openFile(file);
+
+                                print('Name: ${file.name}');
+                                print('Bytes: ${file.bytes}');
+                                print('Name: ${file.size}');
+                                print('Extension: ${file.extension}');
+                                print('path: ${file.path}');
+
+                                await _saveAsFileName(file);
+
+                              },
+                              icon: Icon(
+                                Icons.document_scanner,
+                                color: Colors.red,
+                              ),
+                            ),
                             suffixIcon: IconButton(
                               onPressed: () => getImage(),
                               icon: Icon(
                                 Icons.photo,
-                                color: Colors.redAccent,
+                                color: Colors.red,
                               ),
                             ),
                             hintText: "Send Message",
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.redAccent, //0xffF14C37
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -204,7 +266,7 @@ class GroupChatRoom extends StatelessWidget {
                       SizedBox(width: 5),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.redAccent,
+                          color: Colors.red,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: IconButton(
@@ -224,6 +286,7 @@ class GroupChatRoom extends StatelessWidget {
   }
 
   Widget messageTile(Size size, Map<String, dynamic> chatMap) {
+    // final _openImage = OpenFile.open(chatMap['type']);
     return Builder(builder: (_) {
       if (chatMap['type'] == "text") {
         return Container(
@@ -232,14 +295,14 @@ class GroupChatRoom extends StatelessWidget {
               ? Alignment.centerRight
               : Alignment.centerLeft,
           child: Container(
-            constraints: BoxConstraints(
-              maxWidth: 200,
-            ),
+              constraints: BoxConstraints(
+                maxWidth: 200,
+              ),
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.redAccent,
+                color: Colors.red,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,32 +335,42 @@ class GroupChatRoom extends StatelessWidget {
           alignment: chatMap['sendBy'] == _auth.currentUser.displayName
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: 300,
-            ),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            height: size.height / 2.5,
-            child: GestureDetector(
-              onTap: () {
-                Fluttertoast.showToast(msg: "Zoom view coming soon");
-              },
+          child: GestureDetector(
+            onTap: () {
+              // OpenFile.open(chatMap['type'] == "img" ?? OpenFile.open(chatMap['message']));
+                        },
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  )),
+              constraints: BoxConstraints(
+                maxWidth: 300,
+              ),
+              // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              height: size.height / 2.5,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  chatMap['message'],
-                  fit: BoxFit.cover,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                      ),
-                    );
-                  },
+                child: ClipRRect(child: Image.network
+                (
+                // PhotoView(
+                  // imageProvider: NetworkImage(
+                    chatMap['message'],
+                    // fit: BoxFit.cover,
+                    // loadingBuilder: (BuildContext context, Widget child,
+                    //     ImageChunkEvent loadingProgress) {
+                    //   if (loadingProgress == null) return child;
+                    //   return const Center(
+                    //     child: CircularProgressIndicator(
+                    //       valueColor:
+                    //           AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                    //     ),
+                    //   );
+                    // },
+                  ),
                 ),
               ),
             ),

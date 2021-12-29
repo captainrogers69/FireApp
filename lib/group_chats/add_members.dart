@@ -85,8 +85,8 @@ void onRemoveMembers(int index) {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
-        title: Text("Add Members to "+ widget.name),
+        backgroundColor: Colors.red,
+        title: Text("Edit Members of "+ widget.name),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -142,7 +142,7 @@ void onRemoveMembers(int index) {
                   )
                 : ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.redAccent
+                    primary: Colors.red
                   ),
                     onPressed: onSearch,
                     child: Text("Search"),

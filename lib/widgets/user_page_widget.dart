@@ -18,7 +18,7 @@ class UserPageWidget extends StatelessWidget {
         vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: Colors.redAccent,
+        color: Colors.red,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
