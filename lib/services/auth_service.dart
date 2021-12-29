@@ -19,11 +19,7 @@ final authenticationServiceProvider =
 class AuthenticationService implements BaseAuthenticationService {
   final Reader _read;
 
-  const AuthenticationService(this._read
-  
-  )
-  
-  ;
+  const AuthenticationService(this._read);
 
   @override
   String getCurrentUID() => _read(firebaseAuthProvider).currentUser.uid;
@@ -35,8 +31,8 @@ class AuthenticationService implements BaseAuthenticationService {
   Future<void> signInWithPhone(String phone, BuildContext context) async {
     final _codeController = TextEditingController();
     _read(firebaseAuthProvider).verifyPhoneNumber(
-      phoneNumber: phone,
-      timeout: Duration(seconds: 30),
+      phoneNumber: "+91" + phone,
+      timeout: Duration(seconds: 59),
       verificationCompleted: (AuthCredential credential) async {
         Navigator.of(context).pop();
 
@@ -52,14 +48,15 @@ class AuthenticationService implements BaseAuthenticationService {
               .get();
           Fluttertoast.showToast(msg: "Login Succesful");
 
-
           if (userInCollection.docs.isEmpty) {
-
-            await _read(firestoreProvider).collection('users').doc(user.uid).set({
+            await _read(firestoreProvider)
+                .collection('users')
+                .doc(user.uid)
+                .set({
               "number": phone,
               "name": "unknown",
               "status": "offline",
-              "authorization" : false,
+              "authorization": false,
             });
             Navigator.pop(context);
           } else {
@@ -73,7 +70,7 @@ class AuthenticationService implements BaseAuthenticationService {
       verificationFailed: (FirebaseAuthException exception) {
         print(exception);
       },
-      codeSent: (String verificationId, [int forceResendingToken]) {
+      codeSent: (String verificationId, int forceResendingToken) async {
         showDialog(
             context: context,
             barrierDismissible: false,
@@ -89,16 +86,16 @@ class AuthenticationService implements BaseAuthenticationService {
                       controller: _codeController,
                       decoration: InputDecoration(
                         // helperText: 'OTP',
-                        focusColor: Colors.redAccent,
+                        focusColor: Colors.red,
                         border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      hintText: "Enter Code here",
-                      //   helperStyle: TextStyle(
-                      //     color: Colors.redAccent,
-                      //     fontWeight: FontWeight.bold,
-                      //     fontSize: 14,
-                      //   ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        hintText: "Enter Code here",
+                        //   helperStyle: TextStyle(
+                        //     color: Colors.red,
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 14,
+                        //   ),
                       ),
                     ),
                   ],
@@ -108,7 +105,7 @@ class AuthenticationService implements BaseAuthenticationService {
                   FlatButton(
                     child: Text("Confirm"),
                     textColor: Colors.white,
-                    color: Colors.redAccent,
+                    color: Colors.red,
                     onPressed: () async {
                       final code = _codeController.text.trim();
                       AuthCredential credential = PhoneAuthProvider.credential(
@@ -128,25 +125,32 @@ class AuthenticationService implements BaseAuthenticationService {
                         if (userInCollection.docs.isEmpty) {
                           await _read(firestoreProvider)
                               .collection('users')
-
-                              .doc(user.uid).set({
+                              .doc(user.uid)
+                              .set({
                             "name": "unknown",
                             "number": phone,
                             "status": "offline",
-                            "authorization" : false,
+                            "authorization": false,
                           });
                           Navigator.pop(context);
                         } else {
                           Fluttertoast.showToast(msg: "Login Succesful");
                         }
                       } else {
-                        print("Error");
+                        Fluttertoast.showToast(msg: "Error");
                       }
                     },
                   )
                 ],
               );
             });
+
+        await Future.delayed(Duration(seconds: 59));
+
+        Navigator.pop(context);
+
+        Fluttertoast.showToast(msg: "404! TimeOut");
+        Fluttertoast.showToast(msg: "Try again later");
       },
       codeAutoRetrievalTimeout: null,
     );
@@ -164,12 +168,11 @@ class AuthenticationService implements BaseAuthenticationService {
         .currentUser
         .updateDisplayName(newUsername);
 
-
-            final user = getCurrentUser();
+    final user = getCurrentUser();
 
     await _read(firestoreProvider)
         .collection("users")
         .doc(user.uid)
         .update({"name": user.displayName});
   }
-  }
+}

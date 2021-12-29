@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/group_chats/create%20group/add_members.dart';
-import 'package:flutterwhatsapp/pages/chats_tab.dart';
+import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/home_screen.dart';
 import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -66,7 +66,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
       onWillPop: () async => false,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.redAccent,
+          backgroundColor: Colors.red,
           title: Text(
             "KiyaKonnect",
             style: TextStyle(
@@ -75,11 +75,14 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
           automaticallyImplyLeading: false,
           elevation: 0.7,
           bottom: TabBar(
+              indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100), // Creates border
+                  color: Colors.redAccent),
               controller: _tabController,
               indicatorColor: Colors.white,
               tabs: <Widget>[
                 Tab(
-                  text: "CHATS",
+                  text: "GROUPS",
                 ),
                 Tab(
                   text: "ADMIN",
@@ -127,7 +130,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
                                 children: [
                                   TextButton(
                                     style: TextButton.styleFrom(
-                                      primary: Colors.redAccent,
+                                      primary: Colors.red,
                                     ),
                                     onPressed: () {
                                       Navigator.pop(context);
@@ -136,7 +139,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
                                   ),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        primary: Colors.redAccent),
+                                        primary: Colors.red),
                                     onPressed: () async {
                                       await context
                                           .read(authenticationServiceProvider)
@@ -168,7 +171,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            Chats(),
+            GroupChatHomeScreen(),
             HomeScreen(),
             UserScreen(),
           ],

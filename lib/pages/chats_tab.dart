@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/chat_to_admin.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -82,14 +81,9 @@ class _ChatsState extends State<Chats> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
-        child: Icon(Icons.group),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => GroupChatHomeScreen(),
-          ),
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Text("Chats"),
       ),
       body: Column(
         children: [
@@ -102,7 +96,7 @@ class _ChatsState extends State<Chats> {
                     leading: Icon(
                       Icons.verified_user,
                       size: 25,
-                      color: Colors.redAccent,
+                      color: Colors.red,
                     ),
                     title: Text('Contact Admin',
                         style: TextStyle(
@@ -111,7 +105,7 @@ class _ChatsState extends State<Chats> {
                     subtitle: Text("Tap here to chat"),
                     trailing: Icon(
                       Icons.chat,
-                      color: Colors.redAccent,
+                      color: Colors.red,
                     ),
                   ),
                 ),
@@ -141,11 +135,11 @@ class _ChatsState extends State<Chats> {
           //             }, //open this chat
           //             leading: Icon(
           //               Icons.verified_user,
-          //               color: Colors.redAccent,
+          //               color: Colors.red,
           //             ),
           //             trailing: Icon(
           //               Icons.chat,
-          //               color: Colors.redAccent,
+          //               color: Colors.red,
           //             ),
           //             title: Text(chatRoom['reciever']),
           //             subtitle: Text("by " + _auth.currentUser.displayName),
@@ -203,13 +197,13 @@ class _ChatsState extends State<Chats> {
 //                     onTap: () {},
 //                     leading: Icon(
 //                       Icons.verified_user,
-//                       color: Colors.redAccent,
+//                       color: Colors.red,
 //                     ),
 //                     title: Text(data['name']),
 //                     subtitle: Text(data['number']),
 //                     trailing: Icon(
 //                       Icons.chat,
-//                       color: Colors.redAccent,
+//                       color: Colors.red,
 //                     ),
 //                   );
 //                 }).toList(),

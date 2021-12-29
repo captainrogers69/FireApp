@@ -79,7 +79,7 @@ class _GroupInfoState extends State<GroupInfo> {
     return Scaffold(
       
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.red,
         title: Text("Group Info"),
       ),
       body: Container(
@@ -142,7 +142,7 @@ class _GroupInfoState extends State<GroupInfo> {
               onTap: addingmemberstogrouprules,
               leading: Icon(
                 Icons.add_circle,
-                      color: Colors.redAccent,
+                      color: Colors.red,
               ),
               title: Text(
                 "Add Members",
@@ -160,7 +160,7 @@ class _GroupInfoState extends State<GroupInfo> {
                     return ListTile(
                       leading: Icon(
                         Icons.person,
-                      color: Colors.redAccent,
+                      color: Colors.red,
                       ),
                       title: Text(
                         widget.groupMembers[index]['name'],
@@ -170,7 +170,7 @@ class _GroupInfoState extends State<GroupInfo> {
                       // ),
                       trailing: Icon(
                         Icons.chat,
-                      color: Colors.redAccent,
+                      color: Colors.red,
                       ),
                     );
                   }),
@@ -180,14 +180,14 @@ class _GroupInfoState extends State<GroupInfo> {
 
               leading: Icon(
                 Icons.logout,
-                color: Colors.redAccent,
+                color: Colors.red,
               ),
               title: Text(
                 "Leave Group",
                 style: TextStyle(
                   fontSize: size.width / 22,
                   fontWeight: FontWeight.w500,
-                  color: Colors.redAccent,
+                  color: Colors.red,
                 ),
               ),
             ),

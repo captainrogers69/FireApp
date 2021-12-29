@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:flutterwhatsapp/group_chats/groupchat_screen.dart';
 import 'package:flutterwhatsapp/pages/chat_screen.dart';
+import 'package:flutterwhatsapp/pages/chats_tab.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,11 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.red,
         child: Icon(Icons.group),
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => GroupChatHomeScreen(),
+            builder: (_) => Chats(),
           ),
         ),
       ),
@@ -104,16 +104,26 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: _search,
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            hintText: "Search Users(admin)",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            hintText: "Search Users",
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.redAccent, //0xffF14C37
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       ElevatedButton(
-                        style:
-                            ElevatedButton.styleFrom(primary: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(primary: Colors.red),
                         onPressed: onSearch2,
                         child: Text(
                           "Search User",
@@ -143,13 +153,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               leading: Icon(
                                 Icons.verified_user,
-                                color: Colors.redAccent,
+                                color: Colors.red,
                               ),
                               title: Text(userMap['name']),
                               subtitle: Text("Tap here to Chat"),
                               trailing: Icon(
                                 Icons.chat,
-                                color: Colors.redAccent,
+                                color: Colors.red,
                               ),
                             )
                           : Container(),

@@ -74,8 +74,8 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent,
-        title: Text("Add Members to New Group"),
+        backgroundColor: Colors.red,
+        title: Text("Search Members"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -130,7 +130,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                  style: ElevatedButton.styleFrom(primary: Colors.red),
                     onPressed: onSearch,
                     child: Text("Search"),
                   ),
@@ -149,7 +149,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
       ),
       floatingActionButton: membersList.length >= 2
           ? FloatingActionButton(
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Colors.red,
               child: Icon(Icons.forward),
               onPressed: () async {
               Navigator.of(context).push(
