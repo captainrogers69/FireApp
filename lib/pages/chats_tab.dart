@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+import 'package:flutterwhatsapp/pages/chat_screen.dart';
 import 'package:flutterwhatsapp/pages/chat_to_admin.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -11,14 +13,13 @@ class Chats extends StatefulWidget {
 }
 
 class _ChatsState extends State<Chats> {
-
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
-  Map<String, dynamic> userMap;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // Map<String, dynamic> userMap;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool thisUserAdmin = false;
   List chatForAdmin = [];
 
-    String chatRoomId(String user1, user2) {
+  String chatRoomId(String user1, user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
         user2.toLowerCase().codeUnits[0]) {
       return "$user1$user2";
@@ -44,13 +45,21 @@ class _ChatsState extends State<Chats> {
 
   Future<void> chatAuth() async {
     final user = context.read(authControllerProvider);
-    final doc = await _firestore
+    final checkDocForSender = await _firestore
         .collection('chatroom')
         .where("sender", isEqualTo: user.phoneNumber)
         .get();
+    final checkDocForReciever = await _firestore
+        .collection('chatroom')
+        .where("reciever", isEqualTo: user.phoneNumber)
+        .get();
 
     setState(() {
-      chatForAdmin = doc.docs;
+      if (checkDocForSender.docs.isNotEmpty) {
+        chatForAdmin = checkDocForSender.docs;
+      } else {
+        chatForAdmin = checkDocForReciever.docs;
+      }
     });
   }
 
@@ -63,7 +72,6 @@ class _ChatsState extends State<Chats> {
 
   @override
   Widget build(BuildContext context) {
-
     void contactadminfeature() async {
       final user = context.read(authControllerProvider);
       final userFromUsersCollection =
@@ -111,49 +119,71 @@ class _ChatsState extends State<Chats> {
                 ),
           thisUserAdmin
               ? Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 15.0),
-                  child: Text("Admins can Search users and initiate chat"),
-                ),
-          //       child: ListView(
-          //         children: chatForAdmin.map((chatRoom) {
-          //           return ListTile(
-          //             onTap: () {
-          //               String roomId = chatRoomId(
-          //                   _auth.currentUser.phoneNumber,
-          //                   chatRoom["reciever"]);
+                  //child:
+                  //Padding(
+                  //  padding: const EdgeInsets.only(top: 15.0),
+                  //  child: Text("Admins can Search users and initiate chat"),
+                  // ),
+                  child: ListView(
+                    children: chatForAdmin.map((chatRoom) {
+                      return ListTile(
+                        onTap: () {
+                          String roomId = chatRoomId(
+                            _auth.currentUser.phoneNumber,
+                            chatRoom["reciever"],
+                          );
 
-          //               Navigator.of(context).push(
-          //                 MaterialPageRoute(
-          //                   builder: (_) => ChatRoom(
-          //                     chatRoomId: roomId,
-          //                     sender: _auth.currentUser.phoneNumber,
-          //                     reciever: chatRoom["reciever"],
-          //                   ),
-          //                 ),
-          //               );
-          //             }, //open this chat
-          //             leading: Icon(
-          //               Icons.verified_user,
-          //               color: Colors.red,
-          //             ),
-          //             trailing: Icon(
-          //               Icons.chat,
-          //               color: Colors.red,
-          //             ),
-          //             title: Text(chatRoom['reciever']),
-          //             subtitle: Text("by " + _auth.currentUser.displayName),
-          //           );
-          //         }).toList(),
-          //       ),
-              ) 
-              : Container(height: 200),
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ChatRoom(
+                                chatRoomId: roomId,
+                                sender: _auth.currentUser.phoneNumber,
+                                reciever: chatRoom["reciever"],
+                              ),
+                            ),
+                          );
+
+                          // String roomId = chatRoomId(
+                          //   _auth.currentUser.phoneNumber,
+                          //   // userMap['number'],
+                          // );
+
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (_) => ChatRoom(
+                          //       chatRoomId: roomId,
+                          //       sender: _auth.currentUser.phoneNumber,
+                          //       // reciever: userMap['name'],
+                          //     ),
+                          //   ),
+                          // );
+                        },
+                        leading: Icon(
+                          Icons.verified_user,
+                          color: Colors.red,
+                        ),
+                        trailing: Icon(
+                          Icons.chat,
+                          color: Colors.red,
+                        ),
+                        title: Text(chatRoom['reciever']),
+                        subtitle: Text("by " + chatRoom['sender']),
+                      );
+                    }).toList(),
+                  ),
+                )
+              : Container(
+                  height: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Text("Admins can Search users and initiate chat"),
+                  ),
+                ),
         ],
       ),
     );
   }
 }
-
 
 // StreamBuilder<QuerySnapshot>(
 //             stream: context
