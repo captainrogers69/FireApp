@@ -60,10 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
+    if (userFromUsersCollection.data()["isAdmin"]) {
       onSearch();
     } else {
-      Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
+      Fluttertoast.showToast(msg: "Only Admin can Search users");
     }
   }
 
@@ -131,10 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       userMap != null
                           ? ListTile(
-                              // onTap: () {
-                              //   Fluttertoast.showToast(
-                              //       msg: "One on One chat Coming Soon");
-                              // },
                               onTap: () {
                                 String roomId = chatRoomId(
                                   _auth.currentUser.phoneNumber,
@@ -146,17 +142,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (_) => ChatRoom(
                                       chatRoomId: roomId,
                                       sender: _auth.currentUser.phoneNumber,
-                                      reciever: userMap['number'],
+                                      reciever: userMap['name'],
                                     ),
                                   ),
                                 );
                               },
-                              leading: Icon(
-                                Icons.verified_user,
-                                color: Colors.red,
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.red,
+                                backgroundImage:
+                                    AssetImage("fonts/appiconkk.png"),
                               ),
                               title: Text(userMap['name']),
-                              subtitle: Text("Tap here to Chat"),
+                              subtitle: Text(userMap['number']),
                               trailing: Icon(
                                 Icons.chat,
                                 color: Colors.red,

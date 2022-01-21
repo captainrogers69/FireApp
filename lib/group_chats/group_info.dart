@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/src/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:flutterwhatsapp/group_chats/add_members.dart';
-// import 'package:flutterwhatsapp/services/auth_service.dart';
+import 'package:flutterwhatsapp/group_chats/edit_members.dart';
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
@@ -26,31 +25,29 @@ class _GroupInfoState extends State<GroupInfo> {
   bool isLoading = true;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
-@override
+  @override
   void initState() {
     super.initState();
     membersList = widget.groupMembers;
   }
 
-
-    addingmemberstogrouprules() async {
+  addingmemberstogrouprules() async {
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
-      
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AddMembersINGroup(
-        name: widget.groupName, 
-        membersList: membersList, 
-        groupChatId: widget.groupId
+    if (userFromUsersCollection.data()["isAdmin"]) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddMembersINGroup(
+              name: widget.groupName,
+              membersList: membersList,
+              groupChatId: widget.groupId),
         ),
-        ),
-        );
+      );
     } else {
       Fluttertoast.showToast(msg: "Only Admin can Add Members to the Group");
     }
-    
   }
 
   //leaving group
@@ -59,12 +56,13 @@ class _GroupInfoState extends State<GroupInfo> {
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
+    if (userFromUsersCollection.data()["isAdmin"]) {
       Fluttertoast.showToast(msg: "Administrators can't Leave this Group");
     } else {
       await _firestore.collection('groups').doc(widget.groupId).update({
         'members': widget.groupMembers
-            .where((member) => member['number'] != user.phoneNumber).toList()
+            .where((member) => member['number'] != user.phoneNumber)
+            .toList()
       });
       Navigator.pop(context);
       Navigator.pop(context);
@@ -72,12 +70,10 @@ class _GroupInfoState extends State<GroupInfo> {
     }
   }
 
-  
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text("Group Info"),
@@ -98,10 +94,8 @@ class _GroupInfoState extends State<GroupInfo> {
                       shape: BoxShape.circle,
                       color: Colors.red,
                     ),
-                    child: Icon(
-                      Icons.group,
-                      color: Colors.white,
-                      size: size.width / 10,
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
                     ),
                   ),
                   SizedBox(
@@ -142,7 +136,7 @@ class _GroupInfoState extends State<GroupInfo> {
               onTap: addingmemberstogrouprules,
               leading: Icon(
                 Icons.add_circle,
-                      color: Colors.red,
+                color: Colors.red,
               ),
               title: Text(
                 "Add Members",
@@ -152,7 +146,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 ),
               ),
             ),
-          
+
             Expanded(
               child: ListView.builder(
                   itemCount: widget.groupMembers.length,
@@ -160,24 +154,23 @@ class _GroupInfoState extends State<GroupInfo> {
                     return ListTile(
                       leading: Icon(
                         Icons.person,
-                      color: Colors.red,
+                        color: Colors.red,
                       ),
                       title: Text(
                         widget.groupMembers[index]['name'],
                       ),
                       // subtitle: Text(
-                      //   widget.groupMembers[index]['authorization'],
+                      //   widget.groupMembers[index]['isAdmin'],
                       // ),
                       trailing: Icon(
                         Icons.chat,
-                      color: Colors.red,
+                        color: Colors.red,
                       ),
                     );
                   }),
             ),
             ListTile(
               onTap: leavegroupcheckingadmin,
-
               leading: Icon(
                 Icons.logout,
                 color: Colors.red,

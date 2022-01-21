@@ -10,10 +10,6 @@ class GroupChatHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.red,
-      //   title: Text("Yours Groups"),
-      // ),
       body: StreamBuilder<QuerySnapshot>(
         stream:
             context.read(firestoreProvider).collection('groups').snapshots(),
@@ -74,8 +70,7 @@ class GroupChatHomeScreen extends StatelessWidget {
                   },
                   leading: CircleAvatar(
                     backgroundColor: Colors.red,
-                    child : Icon(Icons.verified,
-                    color: Colors.white,),
+                    backgroundImage: AssetImage("fonts/appiconkk.png"),
                   ),
                   title: Text(data['groupname']),
                   subtitle: Text(data['grpdetail']),

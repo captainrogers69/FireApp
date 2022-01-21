@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-
 class AddMembersINGroup extends StatefulWidget {
   final String groupChatId, name;
   final List membersList;
@@ -21,7 +20,7 @@ class AddMembersINGroup extends StatefulWidget {
 class _AddMembersINGroupState extends State<AddMembersINGroup> {
   final TextEditingController _search = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
- final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, dynamic> userMap;
   bool isLoading = false;
   List membersList = [];
@@ -46,38 +45,34 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
         userMap = value.docs[0].data();
         isLoading = false;
       });
-    }); 
+    });
   }
 
   void onAddMembers() async {
-
-     setState(() {
-        membersList.add({
-          "name": userMap['name'],
-          "number": userMap['number'],
-          "uid": userMap['uid'],
-        });
-        
-        userMap = null;
+    setState(() {
+      membersList.add({
+        "name": userMap['name'],
+        "number": userMap['number'],
+        "uid": userMap['uid'],
       });
+
+      userMap = null;
+    });
 
     await _firestore.collection('groups').doc(widget.groupChatId).update({
       "members": membersList,
-      
     });
     Fluttertoast.showToast(msg: "Member has been added to the group");
-setState(()  {});
-    
+    setState(() {});
   }
 
-void onRemoveMembers(int index) {
+  void onRemoveMembers(int index) {
     if (membersList[index]['uid'] != _auth.currentUser.uid) {
       setState(() {
         membersList.removeAt(index);
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -86,13 +81,13 @@ void onRemoveMembers(int index) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: Text("Edit Members of "+ widget.name),
+        title: Text("Edit Members of " + widget.name),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Flexible(
+            Flexible(
               child: ListView.builder(
                 itemCount: membersList.length,
                 shrinkWrap: true,
@@ -100,7 +95,10 @@ void onRemoveMembers(int index) {
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () => onRemoveMembers(index),
-                    leading: Icon(Icons.account_circle),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
+                    ),
                     title: Text(membersList[index]['number']),
                     subtitle: Text(membersList[index]['name']),
                     trailing: Icon(Icons.close),
@@ -141,16 +139,17 @@ void onRemoveMembers(int index) {
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red
-                  ),
+                    style: ElevatedButton.styleFrom(primary: Colors.red),
                     onPressed: onSearch,
                     child: Text("Search"),
                   ),
             userMap != null
                 ? ListTile(
                     onTap: onAddMembers,
-                    leading: Icon(Icons.account_box),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
+                    ),
                     title: Text(userMap['name']),
                     subtitle: Text(userMap['number']),
                     trailing: Icon(Icons.add),

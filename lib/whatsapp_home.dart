@@ -25,7 +25,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
+    if (userFromUsersCollection.data()["isAdmin"]) {
       // onSearch();
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => AddMembersinNewGroup(),
@@ -39,7 +39,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
   //   final user = context.read(authControllerProvider);
   //   final userFromUsersCollection =
   //       await _firestore.collection('users').doc(user.uid).get();
-  //   if (userFromUsersCollection.data()["authorization"]) {
+  //   if (userFromUsersCollection.data()["isAdmin"]) {
   //     setState(() {
   //       thisUserAdmin = true;
   //     });
@@ -183,7 +183,7 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
 //   Widget creategroup(BuildContext context) async {
 //   final user = context.read(authControllerProvider);
 //     final userFromUsersCollection = await _firestore.collection('users').doc(user.uid).get();
-//     if ( userFromUsersCollection.data()["authorization"] ) {
+//     if ( userFromUsersCollection.data()["isAdmin"] ) {
 //    return
 //    IconButton(
 //                 onPressed: () => Navigator.of(context).push(     // only admin
