@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +18,10 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
   bool isLoading = false;
   Map<String, dynamic> userMap;
 
-
   void onSearch() async {
     setState(() {
       isLoading = true;
     });
-
     await _firestore
         .collection('users')
         .where("number", isEqualTo: _search.text)
@@ -34,30 +31,24 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
         userMap = value.docs[0].data();
         isLoading = false;
       });
+    }).onError((error, stackTrace) {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
-  void onResultTap()  {
-    bool isAlreadyExist = false;
-
-    for (int i = 0; i < membersList.length; i++) {
-      if (membersList[i]['uid'] != userMap['uid']) {  //!
-        isAlreadyExist = true;
-      }
-    }
-
-    if (!isAlreadyExist) {
-      setState(() {
-        membersList.add({
-          "name": userMap['name'],
-          "number": userMap['number'],
-          "uid": userMap['uid'],
-          // "authorization": userMap['authorization'],
-        });
-        
-        userMap = null;
+  void onResultTap() {
+    setState(() {
+      membersList.add({
+        "name": userMap['name'],
+        "number": userMap['number'],
+        "uid": userMap['uid'],
+        // "isAdmin": userMap['isAdmin'],
       });
-    }
+
+      userMap = null;
+    });
   }
 
   void onRemoveMembers(int index) {
@@ -66,6 +57,21 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
         membersList.removeAt(index);
       });
     }
+  }
+
+  @override
+  void initState() {
+    setState(() {
+      membersList.add({
+        "name": _auth.currentUser.displayName,
+        "number": _auth.currentUser.phoneNumber,
+        "uid": _auth.currentUser.uid,
+        // "isAdmin": userMap['isAdmin'],
+      });
+
+      userMap = null;
+    });
+    super.initState();
   }
 
   @override
@@ -89,7 +95,10 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () => onRemoveMembers(index),
-                    leading: Icon(Icons.account_circle),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
+                    ),
                     title: Text(membersList[index]['number']),
                     subtitle: Text(membersList[index]['name']),
                     trailing: Icon(Icons.close),
@@ -130,37 +139,36 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.red),
+                    style: ElevatedButton.styleFrom(primary: Colors.red),
                     onPressed: onSearch,
                     child: Text("Search"),
                   ),
             userMap != null
                 ? ListTile(
-                      onTap: onResultTap,
-                      leading: Icon(Icons.account_box),
-                      title: Text(userMap['number']),
-                      subtitle: Text("Tap to select this Contact"),
-                      trailing: Icon(Icons.add),
-                    
-                )
+                    onTap: onResultTap,
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
+                    ),
+                    title: Text(userMap['number']),
+                    subtitle: Text("Tap to select this Contact"),
+                    trailing: Icon(Icons.add),
+                  )
                 : SizedBox(),
           ],
         ),
       ),
       floatingActionButton: membersList.length >= 2
           ? FloatingActionButton(
-            backgroundColor: Colors.red,
+              backgroundColor: Colors.red,
               child: Icon(Icons.forward),
               onPressed: () async {
-              Navigator.of(context).push(
-                MaterialPageRoute(
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => CreateGroup(
                     membersList: membersList,
                   ),
-                )
-                );
-              }
-            )
+                ));
+              })
           : SizedBox(),
     );
   }

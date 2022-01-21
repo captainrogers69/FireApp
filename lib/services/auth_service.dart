@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -6,8 +8,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 abstract class BaseAuthenticationService {
   Stream<User> get userChanges;
-  Future<void> signInWithPhone(String phone, BuildContext context);
+  Future<void> signInWithPhone(
+      String phone, String countryCode, BuildContext context);
   Future<void> setDisplayName(String newUsername);
+  Future<void> setProfilePhoto(String photoUrl);
   User getCurrentUser();
   String getCurrentUID();
   Future<void> signOut();
@@ -28,10 +32,11 @@ class AuthenticationService implements BaseAuthenticationService {
   User getCurrentUser() => _read(firebaseAuthProvider).currentUser;
 
   @override
-  Future<void> signInWithPhone(String phone, BuildContext context) async {
+  Future<void> signInWithPhone(
+      String phone, String countryCode, BuildContext context) async {
     final _codeController = TextEditingController();
     _read(firebaseAuthProvider).verifyPhoneNumber(
-      phoneNumber: "+91" + phone,
+      phoneNumber: "+" + countryCode + phone,
       timeout: Duration(seconds: 59),
       verificationCompleted: (AuthCredential credential) async {
         Navigator.of(context).pop();
@@ -56,7 +61,7 @@ class AuthenticationService implements BaseAuthenticationService {
               "number": phone,
               "name": "unknown",
               "status": "offline",
-              "authorization": false,
+              "isAdmin": false,
             });
             Navigator.pop(context);
           } else {
@@ -80,7 +85,9 @@ class AuthenticationService implements BaseAuthenticationService {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Text("OTP sent to " + phone.toString()),
+                    Text("This Window will close in 59 seconds:"),
+                    SizedBox(height: 5),
+                    // Text("OTP sent to " + phone.toString()),
                     TextField(
                       keyboardType: TextInputType.phone,
                       controller: _codeController,
@@ -89,6 +96,13 @@ class AuthenticationService implements BaseAuthenticationService {
                         focusColor: Colors.red,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.black, //0xffF14C37
+                            width: 1.7,
+                          ),
                         ),
                         hintText: "Enter Code here",
                         //   helperStyle: TextStyle(
@@ -101,7 +115,15 @@ class AuthenticationService implements BaseAuthenticationService {
                   ],
                 ),
                 actions: <Widget>[
-                  // ignore: deprecated_member_use
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
                   FlatButton(
                     child: Text("Confirm"),
                     textColor: Colors.white,
@@ -130,7 +152,7 @@ class AuthenticationService implements BaseAuthenticationService {
                             "name": "unknown",
                             "number": phone,
                             "status": "offline",
-                            "authorization": false,
+                            "isAdmin": false,
                           });
                           Navigator.pop(context);
                         } else {
@@ -174,5 +196,10 @@ class AuthenticationService implements BaseAuthenticationService {
         .collection("users")
         .doc(user.uid)
         .update({"name": user.displayName});
+  }
+
+  @override
+  Future<void> setProfilePhoto(String photoUrl) async {
+    await _read(firebaseAuthProvider).currentUser.updatePhotoURL(photoUrl);
   }
 }

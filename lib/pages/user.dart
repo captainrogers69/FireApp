@@ -16,6 +16,38 @@ class UserScreen extends HookWidget {
         child: ListView(
           padding: EdgeInsets.only(top: 5),
           children: [
+            // Container(
+            //   padding: EdgeInsets.only(top: 15, bottom: 15),
+            //   child: Stack(
+            //     alignment: Alignment.bottomCenter,
+            //     children: [
+            //       CircleAvatar(
+            //         radius: 80,
+            //         backgroundImage: NetworkImage(authControllerState
+            //                 .photoURL ??
+            //             "https://fanfest.com/wp-content/uploads/2021/02/Loki.jpg"),
+            //       ),
+            //       IconButton(
+            //         onPressed: () {
+            //           showModalBottomSheet(
+            //               isDismissible: true,
+            //               backgroundColor:
+            //                   Theme.of(context).scaffoldBackgroundColor,
+            //               shape: RoundedRectangleBorder(
+            //                 borderRadius:
+            //                     BorderRadius.vertical(top: Radius.circular(25)),
+            //               ),
+            //               clipBehavior: Clip.antiAliasWithSaveLayer,
+            //               context: context,
+            //               builder: (BuildContext buildContext) {
+            //                 return UserProfileBottomSheet();
+            //               });
+            //         },
+            //         icon: Icon(Icons.edit, color: Colors.white),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             UserPageWidget(
               text: authControllerState.phoneNumber,
               actionWidget: IconButton(
@@ -104,7 +136,6 @@ class UserScreen extends HookWidget {
             //     },
             //   ),
             // ),
-
 
             // Padding(
             //   padding: const EdgeInsets.symmetric(

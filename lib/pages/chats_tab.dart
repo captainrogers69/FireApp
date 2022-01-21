@@ -14,7 +14,6 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends State<Chats> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // Map<String, dynamic> userMap;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool thisUserAdmin = false;
   List chatForAdmin = [];
@@ -32,7 +31,7 @@ class _ChatsState extends State<Chats> {
     final user = context.read(authControllerProvider);
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
-    if (userFromUsersCollection.data()["authorization"]) {
+    if (userFromUsersCollection.data()["isAdmin"]) {
       setState(() {
         thisUserAdmin = true;
       });
@@ -51,7 +50,7 @@ class _ChatsState extends State<Chats> {
         .get();
     final checkDocForReciever = await _firestore
         .collection('chatroom')
-        .where("reciever", isEqualTo: user.phoneNumber)
+        .where("reciever", isEqualTo: user.displayName)
         .get();
 
     setState(() {
@@ -76,7 +75,7 @@ class _ChatsState extends State<Chats> {
       final user = context.read(authControllerProvider);
       final userFromUsersCollection =
           await _firestore.collection('users').doc(user.uid).get();
-      if (userFromUsersCollection.data()["authorization"]) {
+      if (userFromUsersCollection.data()["isAdmin"]) {
         Fluttertoast.showToast(msg: "Your are an Administrator");
       } else {
         Navigator.push(
@@ -91,7 +90,7 @@ class _ChatsState extends State<Chats> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: Text("Chats"),
+        title: Text("CHATS"),
       ),
       body: Column(
         children: [
@@ -101,10 +100,9 @@ class _ChatsState extends State<Chats> {
                   padding: const EdgeInsets.all(5.0),
                   child: ListTile(
                     onTap: contactadminfeature,
-                    leading: Icon(
-                      Icons.verified_user,
-                      size: 25,
-                      color: Colors.red,
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      backgroundImage: AssetImage("fonts/appiconkk.png"),
                     ),
                     title: Text('Contact Admin',
                         style: TextStyle(
@@ -158,16 +156,16 @@ class _ChatsState extends State<Chats> {
                           //   ),
                           // );
                         },
-                        leading: Icon(
-                          Icons.verified_user,
-                          color: Colors.red,
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.red,
+                          backgroundImage: AssetImage("fonts/appiconkk.png"),
                         ),
                         trailing: Icon(
                           Icons.chat,
                           color: Colors.red,
                         ),
                         title: Text(chatRoom['reciever']),
-                        subtitle: Text("by " + chatRoom['sender']),
+                        subtitle: Text("by You"), //chatRoom['sender']),
                       );
                     }).toList(),
                   ),
@@ -176,7 +174,7 @@ class _ChatsState extends State<Chats> {
                   height: 200,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 15.0),
-                    child: Text("Admins can Search users and initiate chat"),
+                    // child: Text("Admins can Search users and initiate chat"),
                   ),
                 ),
         ],

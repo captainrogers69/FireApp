@@ -26,4 +26,8 @@ class AuthenticationController extends StateNotifier<User> {
     _authStateChangesSubscription?.cancel();
     super.dispose();
   }
+
+  Future<void> setProfilePhoto(String photoUrl) async {
+    await _read(authenticationServiceProvider).setProfilePhoto(photoUrl);
+  }
 }

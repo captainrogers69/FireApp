@@ -12,33 +12,30 @@ class ChatToAdmin extends StatefulWidget {
 }
 
 class _ChatToAdminState extends State<ChatToAdmin> {
-
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    List adminList = [];
+  List adminList = [];
 
-    String chatRoomId(String user1, user2) {
-      if (user1[0].toLowerCase().codeUnits[0] >
-          user2.toLowerCase().codeUnits[0]) {
-        return "$user1$user2";
-      } else {
-        return "$user2$user1";
-      }
+  String chatRoomId(String user1, user2) {
+    if (user1[0].toLowerCase().codeUnits[0] >
+        user2.toLowerCase().codeUnits[0]) {
+      return "$user1$user2";
+    } else {
+      return "$user2$user1";
     }
+  }
 
-    Future adminListFromFirebase() async {
-      final userFromUsersCollection = await _firestore
-          .collection('users')
-          .where("authorization", isEqualTo: true)
-          .get();
+  Future adminListFromFirebase() async {
+    final userFromUsersCollection = await _firestore
+        .collection('users')
+        .where("isAdmin", isEqualTo: true)
+        .get();
 
-setState(() {
-adminList = userFromUsersCollection.docs;
-});
-      
-    }
+    setState(() {
+      adminList = userFromUsersCollection.docs;
+    });
+  }
 
-
-@override
+  @override
   void initState() {
     adminListFromFirebase();
     super.initState();
@@ -46,9 +43,6 @@ adminList = userFromUsersCollection.docs;
 
   @override
   Widget build(BuildContext context) {
-    
-
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
@@ -71,8 +65,8 @@ adminList = userFromUsersCollection.docs;
                         chatRoomId: chatRoomIdGenerated,
                         sender: data['number'],
                         reciever: data['name']
-                            // context.read(authControllerProvider).phoneNumber
-                            ),
+                        // context.read(authControllerProvider).phoneNumber
+                        ),
                   ),
                 );
               }, //initiate one on one chat
