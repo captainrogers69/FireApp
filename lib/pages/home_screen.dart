@@ -6,6 +6,7 @@ import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/pages/chat_screen.dart';
 import 'package:flutterwhatsapp/pages/chats_tab.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,15 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> userMap;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String chatRoomId(String user1, user2) {
-    if (user1[0].toLowerCase().codeUnits[0] >
-        user2.toLowerCase().codeUnits[0]) {
-      return "$user1$user2";
-    } else {
-      return "$user2$user1";
-    }
-  }
 
   void onSearch() async {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -46,13 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
           isloading = false;
         });
       }).onError((error, stackTrace) {
-        Fluttertoast.showToast(msg: "info incorrect");
+        Fluttertoast.showToast(msg: "Incorrect Phone Number");
         setState(() {
           isloading = false;
         });
       });
     } else {
-      Fluttertoast.showToast(msg: "info empty");
+      Fluttertoast.showToast(msg: "Enter a Number");
     }
   }
 
@@ -70,15 +62,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        child: Icon(Icons.group),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => Chats(),
-          ),
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Colors.red,
+      //   child: Icon(Icons.chat),
+      //   onPressed: () => Navigator.of(context).push(
+      //     MaterialPageRoute(
+      //       builder: (_) => Chats(),
+      //     ),
+      //   ),
+      // ),
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
@@ -131,21 +123,65 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       userMap != null
                           ? ListTile(
-                              onTap: () {
-                                String roomId = chatRoomId(
-                                  _auth.currentUser.phoneNumber,
-                                  userMap['number'],
-                                );
+                              onTap: () async {
+                                final checkExists = await _firestore
+                                    .collection('chatroom')
+                                    .where(
+                                      "sender",
+                                      isEqualTo: userMap["number"],
+                                    )
+                                    .get();
 
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => ChatRoom(
-                                      chatRoomId: roomId,
-                                      sender: _auth.currentUser.phoneNumber,
-                                      reciever: userMap['name'],
+                                final checkExists2 = await _firestore
+                                    .collection('chatroom')
+                                    .where("reciever",
+                                        isEqualTo: userMap['number'])
+                                    .get();
+
+                                if (checkExists.docs.isNotEmpty) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatRoom(
+                                        chatRoomId: checkExists.docs[0].id,
+                                        chatRoomName: userMap['number'],
+                                        sender: _auth.currentUser.phoneNumber,
+                                        sendername:
+                                            _auth.currentUser.displayName,
+                                        reciever: userMap['number'],
+                                        recieverName: userMap['name'],
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                } else if (checkExists2.docs.isNotEmpty) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatRoom(
+                                        chatRoomId: checkExists2.docs[0].id,
+                                        chatRoomName: userMap['number'],
+                                        sender: _auth.currentUser.phoneNumber,
+                                        sendername:
+                                            _auth.currentUser.displayName,
+                                        reciever: userMap['number'],
+                                        recieverName: userMap['name'],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  final roomId = Uuid().v1();
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatRoom(
+                                        chatRoomId: roomId,
+                                        chatRoomName: userMap['number'],
+                                        sender: _auth.currentUser.phoneNumber,
+                                        sendername:
+                                            _auth.currentUser.displayName,
+                                        reciever: userMap['number'],
+                                        recieverName: userMap['name'],
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                               leading: CircleAvatar(
                                 backgroundColor: Colors.red,
@@ -162,8 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           : Container(),
                     ],
                   ),
-                ),
-              ),
+                )),
       ),
     );
   }
