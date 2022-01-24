@@ -15,10 +15,20 @@ import 'package:uuid/uuid.dart';
 
 class ChatRoom extends StatefulWidget {
   final String chatRoomId;
+  final String chatRoomName;
   final String sender;
+  final String sendername;
   final String reciever;
+  final String recieverName;
 
-  ChatRoom({this.chatRoomId, this.sender, this.reciever});
+  ChatRoom({
+    this.chatRoomId,
+    this.chatRoomName,
+    this.sender,
+    this.sendername,
+    this.reciever,
+    this.recieverName,
+  });
 
   @override
   State<ChatRoom> createState() => _ChatRoomState();
@@ -26,17 +36,14 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   final TextEditingController _message = TextEditingController();
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   File imageFile;
   File docFile;
   String documentName;
   File pdfFile;
 
-  void onSendMessage() async {
+  Future<void> onSendMessage() async {
     if (_message.text.isNotEmpty) {
       Map<String, dynamic> messages = {
         "sendby": _auth.currentUser.displayName,
@@ -45,9 +52,25 @@ class _ChatRoomState extends State<ChatRoom> {
         "time": FieldValue.serverTimestamp()
       };
 
+      ////wrap in if condition for doc exists
+      // final chatExists = await _firestore
+      //     .collection('chatrooom')
+      //     .where("chatRoomName", isEqualTo: widget.chatRoomName)
+      //     .get();
+
+      // final chatExists2 = await _firestore
+      //     .collection('chatroom')
+      //     .where("chatRoomAddress", isEqualTo: widget.chatRoomName)
+      //     .get();
+
+      // if (chatExists.docs.isNotEmpty || chatExists2.docs.isNotEmpty) {
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
+        "chatRoomName": widget.chatRoomName,
+        "chatRoomAddress": _auth.currentUser.phoneNumber,
         "sender": widget.sender,
+        "senderName": widget.sendername,
         "reciever": widget.reciever,
+        "recieverName": widget.recieverName,
       });
 
       await _firestore
@@ -59,7 +82,7 @@ class _ChatRoomState extends State<ChatRoom> {
       _message.clear();
     } else {
       print("Enter Some Text");
-      Fluttertoast.showToast(msg: "404! Task incomplete");
+      Fluttertoast.showToast(msg: "Enter Some Text");
     }
   }
 
@@ -248,112 +271,125 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    // final chatthisNumber = _firestore
+    //     .collection('chatroom')
+    //     .where("chatRoomName", isEqualTo: widget.chatRoomName)
+    //     .get();
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text(widget.reciever),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 1.25,
-              width: MediaQuery.of(context).size.width,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('chatroom')
-                    .doc(widget.chatRoomId)
-                    .collection('chats')
-                    .orderBy("time", descending: false)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> map =
-                              snapshot.data.docs[index].data();
-                          return messages(size, map);
-                        });
-                  } else {
-                    return Container();
-                  }
-                },
+        appBar: AppBar(
+          backgroundColor: Colors.red,
+          // title: Text(widget.recieverName),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height / 1.25,
+                width: MediaQuery.of(context).size.width,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('chatroom')
+                      .doc(widget.chatRoomId)
+                      .collection('chats')
+                      .orderBy("time", descending: false)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    // if (chatroomid == ) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                          itemCount: snapshot.data.docs.length,
+                          itemBuilder: (context, index) {
+                            Map<String, dynamic> map =
+                                snapshot.data.docs[index].data();
+                            // if (widget.chatRoomId ==
+                            //     _auth.currentUser.phoneNumber) {
+                            return messages(size, map);
+                          }
+                          // else {
+                          //   return null;
+                          // }
+                          // }
+                          );
+                    } else {
+                      return Container();
+                    }
+                    //else
+                  },
+                ),
               ),
-            ),
-            Container(
-              height: size.height / 10,
-              width: size.width,
-              alignment: Alignment.center,
-              child: Container(
-                height: size.height / 14,
-                width: size.width / 1.1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: size.height / 15,
-                      width: size.width / 1.3,
-                      child: TextField(
-                        controller: _message,
-                        decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(25),
+              Container(
+                height: size.height / 10,
+                width: size.width,
+                alignment: Alignment.center,
+                child: Container(
+                  height: size.height / 14,
+                  width: size.width / 1.1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: size.height / 15,
+                        width: size.width / 1.3,
+                        child: TextField(
+                          controller: _message,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(25),
+                                    ),
                                   ),
-                                ),
-                                context: context,
-                                builder: (context) {
-                                  return documentShareWidget(context);
-                                },
-                              );
-                            },
-                            icon: Icon(
-                              Icons.attach_file,
-                              color: Colors.red,
+                                  context: context,
+                                  builder: (context) {
+                                    return documentShareWidget(context);
+                                  },
+                                );
+                              },
+                              icon: Icon(
+                                Icons.attach_file,
+                                color: Colors.red,
+                              ),
                             ),
-                          ),
-                          hintText: "Send Message",
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
+                            hintText: "Send Message",
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2,
+                              ),
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: Colors.redAccent, //0xffF14C37
-                              width: 2,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.redAccent, //0xffF14C37
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(25),
+                      SizedBox(width: 5),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.send),
+                          onPressed: onSendMessage,
+                        ),
                       ),
-                      child: IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: onSendMessage,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            ],
+          ),
+        ));
   }
 
   Widget messages(Size size, Map<String, dynamic> map) {

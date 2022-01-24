@@ -58,7 +58,7 @@ class AuthenticationService implements BaseAuthenticationService {
                 .collection('users')
                 .doc(user.uid)
                 .set({
-              "number": phone,
+              "number": "+" + countryCode + phone,
               "name": "unknown",
               "status": "offline",
               "isAdmin": false,
@@ -66,7 +66,6 @@ class AuthenticationService implements BaseAuthenticationService {
             Navigator.pop(context);
           } else {
             Fluttertoast.showToast(msg: "Login Succesful");
-            // Fluttertoast.showToast(msg: "Account Created");
           }
         } else {
           print("Error");
@@ -150,7 +149,7 @@ class AuthenticationService implements BaseAuthenticationService {
                               .doc(user.uid)
                               .set({
                             "name": "unknown",
-                            "number": phone,
+                            "number": "+" + countryCode + phone,
                             "status": "offline",
                             "isAdmin": false,
                           });

@@ -43,10 +43,6 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   File pdfFile;
   int progress = 0;
   ReceivePort _receivePort = ReceivePort();
-  TransformationController _tranformationController;
-  TapDownDetails tabDownDetails;
-  AnimationController animationController;
-  Animation<Matrix4> animation;
 
   static downloadingCallback(id, status, progress) {
     SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
@@ -270,20 +266,6 @@ class _GroupChatRoomState extends State<GroupChatRoom>
       });
     });
     FlutterDownloader.registerCallback((downloadingCallback));
-    _tranformationController = TransformationController();
-    animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 300),
-    )..addListener(() {
-        _tranformationController.value = animation.value;
-      });
-  }
-
-  @override
-  void dispose() {
-    _tranformationController.dispose();
-    animationController.dispose();
-    super.dispose();
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/widgets/user_edit_bottom_sheet.dart';
 import 'package:flutterwhatsapp/widgets/user_page_widget.dart';
+import 'package:flutterwhatsapp/widgets/user_profileedit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class UserScreen extends HookWidget {
@@ -16,38 +17,38 @@ class UserScreen extends HookWidget {
         child: ListView(
           padding: EdgeInsets.only(top: 5),
           children: [
-            // Container(
-            //   padding: EdgeInsets.only(top: 15, bottom: 15),
-            //   child: Stack(
-            //     alignment: Alignment.bottomCenter,
-            //     children: [
-            //       CircleAvatar(
-            //         radius: 80,
-            //         backgroundImage: NetworkImage(authControllerState
-            //                 .photoURL ??
-            //             "https://fanfest.com/wp-content/uploads/2021/02/Loki.jpg"),
-            //       ),
-            //       IconButton(
-            //         onPressed: () {
-            //           showModalBottomSheet(
-            //               isDismissible: true,
-            //               backgroundColor:
-            //                   Theme.of(context).scaffoldBackgroundColor,
-            //               shape: RoundedRectangleBorder(
-            //                 borderRadius:
-            //                     BorderRadius.vertical(top: Radius.circular(25)),
-            //               ),
-            //               clipBehavior: Clip.antiAliasWithSaveLayer,
-            //               context: context,
-            //               builder: (BuildContext buildContext) {
-            //                 return UserProfileBottomSheet();
-            //               });
-            //         },
-            //         icon: Icon(Icons.edit, color: Colors.white),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            Container(
+              padding: EdgeInsets.only(top: 15, bottom: 15),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  CircleAvatar(
+                    radius: 80,
+                    backgroundImage: NetworkImage(authControllerState
+                            .photoURL ??
+                        "https://fanfest.com/wp-content/uploads/2021/02/Loki.jpg"),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                          isDismissible: true,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(25)),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          context: context,
+                          builder: (BuildContext buildContext) {
+                            return UserProfileBottomSheet();
+                          });
+                    },
+                    icon: Icon(Icons.edit, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
             UserPageWidget(
               text: authControllerState.phoneNumber,
               actionWidget: IconButton(

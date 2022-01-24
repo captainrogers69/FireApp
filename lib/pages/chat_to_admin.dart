@@ -1,89 +1,89 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import "package:flutter/material.dart";
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutterwhatsapp/controllers/auth_controller.dart';
-import 'package:flutterwhatsapp/pages/chat_screen.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import "package:flutter/material.dart";
+// import 'package:hooks_riverpod/hooks_riverpod.dart';
+// import 'package:flutterwhatsapp/controllers/auth_controller.dart';
+// import 'package:flutterwhatsapp/pages/chat_screen.dart';
 
-class ChatToAdmin extends StatefulWidget {
-  const ChatToAdmin({Key key}) : super(key: key);
+// class ChatToAdmin extends StatefulWidget {
+//   const ChatToAdmin({Key key}) : super(key: key);
 
-  @override
-  State<ChatToAdmin> createState() => _ChatToAdminState();
-}
+//   @override
+//   State<ChatToAdmin> createState() => _ChatToAdminState();
+// }
 
-class _ChatToAdminState extends State<ChatToAdmin> {
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List adminList = [];
+// class _ChatToAdminState extends State<ChatToAdmin> {
+//   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+//   List adminList = [];
 
-  String chatRoomId(String user1, user2) {
-    if (user1[0].toLowerCase().codeUnits[0] >
-        user2.toLowerCase().codeUnits[0]) {
-      return "$user1$user2";
-    } else {
-      return "$user2$user1";
-    }
-  }
+//   String chatRoomId(String user1, user2) {
+//     if (user1[0].toLowerCase().codeUnits[0] >
+//         user2.toLowerCase().codeUnits[0]) {
+//       return "$user1$user2";
+//     } else {
+//       return "$user2$user1";
+//     }
+//   }
 
-  Future adminListFromFirebase() async {
-    final userFromUsersCollection = await _firestore
-        .collection('users')
-        .where("isAdmin", isEqualTo: true)
-        .get();
+//   Future adminListFromFirebase() async {
+//     final userFromUsersCollection = await _firestore
+//         .collection('users')
+//         .where("isAdmin", isEqualTo: true)
+//         .get();
 
-    setState(() {
-      adminList = userFromUsersCollection.docs;
-    });
-  }
+//     setState(() {
+//       adminList = userFromUsersCollection.docs;
+//     });
+//   }
 
-  @override
-  void initState() {
-    adminListFromFirebase();
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     adminListFromFirebase();
+//     super.initState();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text("Choose admin to chat"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-              child: ListView(
-                  children: adminList.map((data) {
-            return ListTile(
-              onTap: () {
-                final chatRoomIdGenerated = chatRoomId(data['number'],
-                    context.read(authControllerProvider).phoneNumber);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         backgroundColor: Colors.red,
+//         title: Text("Choose admin to chat"),
+//       ),
+//       body: Column(
+//         children: [
+//           Expanded(
+//               child: ListView(
+//                   children: adminList.map((data) {
+//             return ListTile(
+//               onTap: () {
+//                 final chatRoomIdGenerated = chatRoomId(data['number'],
+//                     context.read(authControllerProvider).phoneNumber);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatRoom(
-                        chatRoomId: chatRoomIdGenerated,
-                        sender: data['number'],
-                        reciever: data['name']
-                        // context.read(authControllerProvider).phoneNumber
-                        ),
-                  ),
-                );
-              }, //initiate one on one chat
-              leading: Icon(
-                Icons.verified_user,
-                color: Colors.red,
-              ),
-              title: Text(data['name']),
-              subtitle: Text("Tap here to chat to admin"),
-              trailing: Icon(
-                Icons.chat,
-                color: Colors.red,
-              ),
-            );
-          }).toList())),
-        ],
-      ),
-    );
-  }
-}
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(
+//                     builder: (context) => ChatRoom(
+//                         chatRoomId: chatRoomIdGenerated,
+//                         sender: data['number'],
+//                         reciever: data['name']
+//                         // context.read(authControllerProvider).phoneNumber
+//                         ),
+//                   ),
+//                 );
+//               }, //initiate one on one chat
+//               leading: Icon(
+//                 Icons.verified_user,
+//                 color: Colors.red,
+//               ),
+//               title: Text(data['name']),
+//               subtitle: Text("Tap here to chat to admin"),
+//               trailing: Icon(
+//                 Icons.chat,
+//                 color: Colors.red,
+//               ),
+//             );
+//           }).toList())),
+//         ],
+//       ),
+//     );
+//   }
+// }
