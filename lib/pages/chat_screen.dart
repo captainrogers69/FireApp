@@ -279,7 +279,7 @@ class _ChatRoomState extends State<ChatRoom> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.red,
-          // title: Text(widget.recieverName),
+          title: Text(widget.chatRoomName),
         ),
         body: SingleChildScrollView(
           child: Column(
