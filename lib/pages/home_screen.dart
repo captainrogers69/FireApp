@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await _firestore
           .collection('users')
+          // .where("isAdmin", isNotEqualTo: true)
           .where("number", isEqualTo: _search.text)
           .get()
           .then((value) {
@@ -62,15 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.red,
-      //   child: Icon(Icons.chat),
-      //   onPressed: () => Navigator.of(context).push(
-      //     MaterialPageRoute(
-      //       builder: (_) => Chats(),
-      //     ),
-      //   ),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.red,
+        child: Icon(Icons.chat),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => Chats(),
+          ),
+        ),
+      ),
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
