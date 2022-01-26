@@ -2,8 +2,11 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/general_providers.dart';
+import 'package:flutterwhatsapp/hooks/timer_hook.dart';
+import 'package:flutterwhatsapp/widgets/error_handler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 abstract class BaseAuthenticationService {
@@ -34,147 +37,70 @@ class AuthenticationService implements BaseAuthenticationService {
   @override
   Future<void> signInWithPhone(
       String phone, String countryCode, BuildContext context) async {
-    final _codeController = TextEditingController();
-    _read(firebaseAuthProvider).verifyPhoneNumber(
-      phoneNumber: "+" + countryCode + phone,
-      timeout: Duration(seconds: 59),
-      verificationCompleted: (AuthCredential credential) async {
-        Navigator.of(context).pop();
+    try {
+      _read(firebaseAuthProvider).verifyPhoneNumber(
+        phoneNumber: "+" + countryCode + phone,
+        timeout: Duration(seconds: 60),
+        verificationCompleted: (AuthCredential credential) async {
+          Navigator.of(context).pop();
 
-        UserCredential result =
-            await _read(firebaseAuthProvider).signInWithCredential(credential);
+          UserCredential result = await _read(firebaseAuthProvider)
+              .signInWithCredential(credential);
 
-        User user = result.user;
+          User user = result.user;
 
-        if (user != null) {
-          final userInCollection = await _read(firestoreProvider)
-              .collection('users')
-              .where("number", isEqualTo: user.phoneNumber)
-              .get();
-          Fluttertoast.showToast(msg: "Login Succesful");
-
-          if (userInCollection.docs.isEmpty) {
-            await _read(firestoreProvider)
+          if (user != null) {
+            final userInCollection = await _read(firestoreProvider)
                 .collection('users')
-                .doc(user.uid)
-                .set({
-              "number": "+" + countryCode + phone,
-              "name": "unknown",
-              "status": "offline",
-              "isAdmin": false,
-            });
-            Navigator.pop(context);
-          } else {
+                .where("number", isEqualTo: user.phoneNumber)
+                .get();
             Fluttertoast.showToast(msg: "Login Succesful");
+
+            if (userInCollection.docs.isEmpty) {
+              await _read(firestoreProvider)
+                  .collection('users')
+                  .doc(user.uid)
+                  .set({
+                "number": "+" + countryCode + phone,
+                "name": "unknown",
+                "status": "offline",
+                "isAdmin": false,
+              });
+              Navigator.pop(context);
+            } else {
+              Fluttertoast.showToast(msg: "Login Succesful");
+            }
+          } else {
+            print("Error");
           }
-        } else {
-          print("Error");
-        }
-      },
-      verificationFailed: (FirebaseAuthException exception) {
-        print(exception);
-      },
-      codeSent: (String verificationId, int forceResendingToken) async {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return AlertDialog(
-                title: Text("Enter the OTP?"),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text("This Window will close in 59 seconds:"),
-                    SizedBox(height: 5),
-                    // Text("OTP sent to " + phone.toString()),
-                    TextField(
-                      keyboardType: TextInputType.phone,
-                      controller: _codeController,
-                      decoration: InputDecoration(
-                        // helperText: 'OTP',
-                        focusColor: Colors.red,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(
-                            color: Colors.black, //0xffF14C37
-                            width: 1.7,
-                          ),
-                        ),
-                        hintText: "Enter Code here",
-                        //   helperStyle: TextStyle(
-                        //     color: Colors.red,
-                        //     fontWeight: FontWeight.bold,
-                        //     fontSize: 14,
-                        //   ),
-                      ),
-                    ),
-                  ],
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  FlatButton(
-                    child: Text("Confirm"),
-                    textColor: Colors.white,
-                    color: Colors.red,
-                    onPressed: () async {
-                      final code = _codeController.text.trim();
-                      AuthCredential credential = PhoneAuthProvider.credential(
-                          verificationId: verificationId, smsCode: code);
+        },
+        verificationFailed: (FirebaseAuthException exception) {
+          print(exception);
+        },
+        codeSent: (String verificationId, int forceResendingToken) async {
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return OtpDialogue(
+                  verificationID: verificationId,
+                  countryCode: countryCode,
+                  phoneNumber: phone,
+                );
+              });
 
-                      UserCredential result = await _read(firebaseAuthProvider)
-                          .signInWithCredential(credential);
+          await Future.delayed(Duration(seconds: 60));
 
-                      User user = result.user;
+          Navigator.pop(context);
 
-                      if (user != null) {
-                        final userInCollection = await _read(firestoreProvider)
-                            .collection('users')
-                            .where("number", isEqualTo: user.phoneNumber)
-                            .get();
-
-                        if (userInCollection.docs.isEmpty) {
-                          await _read(firestoreProvider)
-                              .collection('users')
-                              .doc(user.uid)
-                              .set({
-                            "name": "unknown",
-                            "number": "+" + countryCode + phone,
-                            "status": "offline",
-                            "isAdmin": false,
-                          });
-                          Navigator.pop(context);
-                        } else {
-                          Fluttertoast.showToast(msg: "Login Succesful");
-                        }
-                      } else {
-                        Fluttertoast.showToast(msg: "Error");
-                      }
-                    },
-                  )
-                ],
-              );
-            });
-
-        await Future.delayed(Duration(seconds: 59));
-
-        Navigator.pop(context);
-
-        Fluttertoast.showToast(msg: "404! TimeOut");
-        Fluttertoast.showToast(msg: "Try again later");
-      },
-      codeAutoRetrievalTimeout: null,
-    );
+          Fluttertoast.showToast(msg: "TimeOut");
+          Fluttertoast.showToast(msg: "Try again later");
+        },
+        codeAutoRetrievalTimeout: null,
+      );
+    } on FirebaseAuthException catch (e) {
+      return ErrorHandler.errorDialog(context, e);
+    }
   }
 
   @override
@@ -200,5 +126,110 @@ class AuthenticationService implements BaseAuthenticationService {
   @override
   Future<void> setProfilePhoto(String photoUrl) async {
     await _read(firebaseAuthProvider).currentUser.updatePhotoURL(photoUrl);
+  }
+}
+
+class OtpDialogue extends HookWidget {
+  final String verificationID, countryCode, phoneNumber;
+  const OtpDialogue({
+    Key key,
+    this.verificationID,
+    this.countryCode,
+    this.phoneNumber,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final ticker = useInfiniteTimer();
+    final _codeController = useTextEditingController();
+    return AlertDialog(
+      title: Text("Enter the OTP?"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+              "This Window will close in ${ticker.toString()} seconds:"), ////////////////
+          SizedBox(height: 5),
+          // Text("OTP sent to " + phone.toString()),
+          TextField(
+            keyboardType: TextInputType.phone,
+            controller: _codeController,
+            decoration: InputDecoration(
+              // helperText: 'OTP',
+              focusColor: Colors.red,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(
+                  color: Colors.black, //0xffF14C37
+                  width: 1.7,
+                ),
+              ),
+              hintText: "Enter Code here",
+              //   helperStyle: TextStyle(
+              //     color: Colors.red,
+              //     fontWeight: FontWeight.bold,
+              //     fontSize: 14,
+              //   ),
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+        FlatButton(
+          child: Text("Confirm"),
+          textColor: Colors.white,
+          color: Colors.red,
+          onPressed: () async {
+            final code = _codeController.text.trim();
+            AuthCredential credential = PhoneAuthProvider.credential(
+                verificationId: verificationID, smsCode: code);
+
+            UserCredential result = await context
+                .read(firebaseAuthProvider)
+                .signInWithCredential(credential);
+
+            User user = result.user;
+
+            if (user != null) {
+              final userInCollection = await context
+                  .read(firestoreProvider)
+                  .collection('users')
+                  .where("number", isEqualTo: user.phoneNumber)
+                  .get();
+
+              if (userInCollection.docs.isEmpty) {
+                await context
+                    .read(firestoreProvider)
+                    .collection('users')
+                    .doc(user.uid)
+                    .set({
+                  "name": "unknown",
+                  "number": "+" + countryCode + phoneNumber,
+                  "status": "offline",
+                  "isAdmin": false,
+                });
+                Navigator.pop(context);
+              } else {
+                Fluttertoast.showToast(msg: "Login Succesful");
+              }
+            } else {
+              Fluttertoast.showToast(msg: "Error");
+            }
+          },
+        )
+      ],
+    );
   }
 }
