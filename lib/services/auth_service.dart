@@ -75,7 +75,11 @@ class AuthenticationService implements BaseAuthenticationService {
           }
         },
         verificationFailed: (FirebaseAuthException exception) {
-          print(exception);
+          Fluttertoast.showToast(
+            msg: exception.toString().length > 35
+                ? exception.toString().substring(0, 35) + "..."
+                : exception.toString() + " ...",
+          );
         },
         codeSent: (String verificationId, int forceResendingToken) async {
           showDialog(

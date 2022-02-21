@@ -75,9 +75,9 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
           automaticallyImplyLeading: false,
           elevation: 0.7,
           bottom: TabBar(
-              indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100), // Creates border
-                  color: Colors.redAccent),
+              // indicator: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(100), // Creates border
+              //     color: Colors.redAccent),
               controller: _tabController,
               indicatorColor: Colors.white,
               tabs: <Widget>[

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:757557642381:android:f3f52c81ad1285014a8ec4",
+        "mobilesdk_app_id": "1:757557642381:android:373720464c4bac214a8ec4",
         "android_client_info": {
-          "package_name": "com.example.flutterwhatsapp"
+          "package_name": "com.rogers.kiyakonnect"
         }
       },
       "oauth_client": [
         {
-          "client_id": "757557642381-jjo1guu83s2pi4ann7qp0jeb1prj7ena.apps.googleusercontent.com",
+          "client_id": "757557642381-qc0jk15rlkkeptscua75cadri4gvmh86.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.flutterwhatsapp",
-            "certificate_hash": "14f7cda176c5c71a278984435cf2b0f583c27179"
+            "package_name": "com.rogers.kiyakonnect",
+            "certificate_hash": "49fa3ca1955705cbc17f22dba2c0ecfc4b3164ce"
           }
         },
         {
