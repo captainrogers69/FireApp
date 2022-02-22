@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
@@ -16,6 +17,7 @@ class _ChatsState extends State<Chats> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool thisUserAdmin = false;
   List<QueryDocumentSnapshot> chatForAdmin = [];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> isThisUserAdmin() async {
     final user = context.read(authControllerProvider);
@@ -152,7 +154,11 @@ class _ChatsState extends State<Chats> {
                           Icons.chat,
                           color: Colors.red,
                         ),
-                        title: Text(chatRoom['chatRoomName']),
+                        title: Text(
+                            chatRoom["sender"] == _auth.currentUser.phoneNumber
+                                ? chatRoom["reciever"]
+                                : chatRoom["sender"]),
+
                         subtitle: Text("by You"), //chatRoom['sender']),
                       );
                     }).toList(),

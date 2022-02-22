@@ -131,12 +131,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                       "sender",
                                       isEqualTo: userMap["number"],
                                     )
+                                    .where("reciever",
+                                        isEqualTo:
+                                            _auth.currentUser.phoneNumber)
                                     .get();
 
                                 final checkExists2 = await _firestore
                                     .collection('chatroom')
                                     .where("reciever",
                                         isEqualTo: userMap['number'])
+                                    .where(
+                                      "sender",
+                                      isEqualTo: _auth.currentUser.phoneNumber,
+                                    )
                                     .get();
 
                                 if (checkExists.docs.isNotEmpty) {
