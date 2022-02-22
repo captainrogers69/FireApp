@@ -5,12 +5,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_chat_bubble/bubble_type.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -46,7 +52,10 @@ class _ChatRoomState extends State<ChatRoom> {
   Future<void> onSendMessage() async {
     if (_message.text.isNotEmpty) {
       Map<String, dynamic> messages = {
-        "sendby": _auth.currentUser.displayName,
+        "sendBy": _auth.currentUser.phoneNumber,
+        "sendByName": _auth.currentUser.displayName != ""
+            ? _auth.currentUser.displayName
+            : "unknown",
         "type": "text",
         "message": _message.text,
         "time": FieldValue.serverTimestamp()
@@ -68,7 +77,7 @@ class _ChatRoomState extends State<ChatRoom> {
         "chatRoomName": widget.chatRoomName,
         "chatRoomAddress": _auth.currentUser.phoneNumber,
         "sender": widget.sender,
-        "senderName": widget.sendername,
+        "senderName": widget.sendername != "" ? widget.sendername : "unknown",
         "reciever": widget.reciever,
         "recieverName": widget.recieverName,
       });
@@ -279,14 +288,23 @@ class _ChatRoomState extends State<ChatRoom> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.red,
-          title: Text(widget.chatRoomName),
+          title: Text(widget.sender == _auth.currentUser.phoneNumber
+              ? widget.reciever
+              : widget.sender),
         ),
         body: SingleChildScrollView(
           child: Column(
             children: [
               Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("fonts/background.png"),
+                    fit: BoxFit.fill,
+                  ),
+                ),
                 height: MediaQuery.of(context).size.height / 1.25,
                 width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(bottom: 5),
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('chatroom')
@@ -296,22 +314,14 @@ class _ChatRoomState extends State<ChatRoom> {
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
-                    // if (chatroomid == ) {
                     if (snapshot.hasData) {
                       return ListView.builder(
                           itemCount: snapshot.data.docs.length,
                           itemBuilder: (context, index) {
                             Map<String, dynamic> map =
                                 snapshot.data.docs[index].data();
-                            // if (widget.chatRoomId ==
-                            //     _auth.currentUser.phoneNumber) {
                             return messages(size, map);
-                          }
-                          // else {
-                          //   return null;
-                          // }
-                          // }
-                          );
+                          });
                     } else {
                       return Container();
                     }
@@ -320,19 +330,39 @@ class _ChatRoomState extends State<ChatRoom> {
                 ),
               ),
               Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("fonts/background.png"),
+                    fit: BoxFit.fill,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (Colors.blueGrey[400]),
+                      offset: Offset(
+                        0,
+                        -3,
+                      ),
+                      blurRadius: 10.0,
+                      spreadRadius: -5.0,
+                    ),
+                  ],
+                ),
                 height: size.height / 10,
                 width: size.width,
                 alignment: Alignment.center,
                 child: Container(
-                  height: size.height / 14,
+                  height: size.height / 12,
                   width: size.width / 1.1,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        height: size.height / 15,
-                        width: size.width / 1.3,
-                        child: TextField(
+                      Expanded(
+                        // height: size.height / 11,
+                        // width: size.width / 1.3,
+                        child: TextFormField(
+                          minLines: 2,
+                          maxLines: 4,
+                          keyboardType: TextInputType.multiline,
                           controller: _message,
                           decoration: InputDecoration(
                             suffixIcon: IconButton(
@@ -395,15 +425,23 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget messages(Size size, Map<String, dynamic> map) {
     return Builder(builder: (_) {
       if (map['type'] == "text") {
-        return Container(
+        return ChatBubble(
           padding: EdgeInsets.only(
-            top: 3,
+            // top: 3,
+            left: 5,
             right: 3,
           ),
-          width: MediaQuery.of(context).size.width,
-          alignment: map['sendby'] == _auth.currentUser.displayName
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: map['sendBy'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: map['sendBy'] == _auth.currentUser.phoneNumber
+              ? Colors.white
+              : Colors.red,
           child: Container(
             padding: EdgeInsets.symmetric(
               vertical: 10,
@@ -413,24 +451,41 @@ class _ChatRoomState extends State<ChatRoom> {
               vertical: 5,
               horizontal: 8,
             ),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15), color: Colors.red),
-            child: Text(
-              map['message'],
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+            child: GestureDetector(
+              onLongPress: () {
+                Clipboard.setData(ClipboardData(text: map['message']));
+                Fluttertoast.showToast(msg: "Text Copied to Clipboard");
+                print(_auth.currentUser.phoneNumber);
+              },
+              child: Linkify(
+                text: map['message'],
+                onOpen: (link) {
+                  launch('${map['message']}');
+                },
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: map['sendby'] == _auth.currentUser.phoneNumber
+                      ? Colors.white
+                      : Colors.black,
+                ),
               ),
             ),
           ),
         );
       } else if (map['type'] == "img") {
-        return Container(
-          width: size.width,
-          alignment: map['sendBy'] == _auth.currentUser.displayName
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: map['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.receiverBubble
+                  : BubbleType.sendBubble),
+          alignment: map['sendby'] == _auth.currentUser.phoneNumber
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
+          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () {},
             child: Container(
@@ -449,26 +504,6 @@ class _ChatRoomState extends State<ChatRoom> {
                 borderRadius: BorderRadius.circular(20),
                 child: ClipRRect(
                   child: GestureDetector(
-                    // onDoubleTapDown: (details) => tabDownDetails = details,
-                    // onDoubleTap: () {
-                    //   final position = tabDownDetails.localPosition;
-
-                    //   final double scale = 3;
-                    //   final x = -position.dx * (scale - 1);
-                    //   final y = -position.dy * (scale - 1);
-                    //   final zoomed = Matrix4.identity()
-                    //     ..translate(x, y)
-                    //     ..scale(scale);
-
-                    //   final end = _tranformationController.value.isIdentity()
-                    //       ? zoomed
-                    //       : Matrix4.identity();
-                    //   _tranformationController.value = end;
-                    //   animation = Matrix4Tween(
-                    //           begin: _tranformationController.value, end: end)
-                    //       .animate(CurveTween(curve: Curves.easeOut)
-                    //           .animate(animationController));
-                    // },
                     onTap: () async {
                       final status = await Permission.storage.request();
                       if (status.isGranted) {
@@ -498,8 +533,6 @@ class _ChatRoomState extends State<ChatRoom> {
                       imageUrl: map['message'] ??
                           "https://img.icons8.com/cute-clipart/2x/user-male.png",
                       placeholder: (context, url) => Container(
-                        height: 30,
-                        width: 30,
                         child: Center(
                           child: Container(
                               height: 30,
@@ -507,7 +540,8 @@ class _ChatRoomState extends State<ChatRoom> {
                               child: CircularProgressIndicator()),
                         ),
                       ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          Image.asset("fonts/img_not_available.jpeg"),
                       // fit: BoxFit.cover,
                     ),
                   ),
@@ -517,11 +551,18 @@ class _ChatRoomState extends State<ChatRoom> {
           ),
         );
       } else if (map['type'] == "doc") {
-        return Container(
-          width: size.width,
-          alignment: map['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: map['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: map['sendby'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () async {
               final status = await Permission.storage.request();
@@ -557,7 +598,6 @@ class _ChatRoomState extends State<ChatRoom> {
               constraints: BoxConstraints(
                 maxWidth: 300,
               ),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               height: size.height / 14,
               width: size.width / 1.7,
               child: Row(
@@ -583,11 +623,18 @@ class _ChatRoomState extends State<ChatRoom> {
           ),
         );
       } else if (map['type'] == "pdf") {
-        return Container(
-          width: size.width,
-          alignment: map['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: map['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: map['sendby'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () async {
               final status = await Permission.storage.request();
@@ -623,8 +670,7 @@ class _ChatRoomState extends State<ChatRoom> {
               constraints: BoxConstraints(
                 maxWidth: 300,
               ),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              height: size.height / 11,
+              height: size.height / 14,
               width: size.width / 1.7,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -6,6 +6,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bubble/bubble_type.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
@@ -108,7 +111,8 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .collection('chats')
         .doc(docFilename)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName,
       "message": "",
       "docname": "",
       "type": "doc",
@@ -154,7 +158,8 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .collection('chats')
         .doc(pdfFilename)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName,
       "message": "",
       "docname": "",
       "type": "pdf",
@@ -200,7 +205,8 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .collection('chats')
         .doc(fileName)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName,
       "message": "",
       "docname": "",
       "type": "img",
@@ -238,7 +244,10 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   void onSendMessage() async {
     if (_message.text.isNotEmpty) {
       Map<String, dynamic> chatData = {
-        "sendBy": _auth.currentUser.displayName,
+        "sendBy": _auth.currentUser.phoneNumber,
+        "sendByName": _auth.currentUser.displayName != ""
+            ? _auth.currentUser.displayName
+            : "unknown",
         "message": _message.text,
         "type": "text",
         "time": FieldValue.serverTimestamp(),
@@ -319,6 +328,12 @@ class _GroupChatRoomState extends State<GroupChatRoom>
               //   ),
               // ),
               Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("fonts/background.png"),
+                    fit: BoxFit.fill,
+                  ),
+                ),
                 height: size.height / 1.25,
                 width: size.width,
                 child: StreamBuilder<QuerySnapshot>(
@@ -351,6 +366,23 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                 ),
               ),
               Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("fonts/background.png"),
+                    fit: BoxFit.fill,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (Colors.blueGrey[400]),
+                      offset: Offset(
+                        0,
+                        -3,
+                      ),
+                      blurRadius: 10.0,
+                      spreadRadius: -5.0,
+                    ),
+                  ],
+                ),
                 height: size.height / 10,
                 width: size.width,
                 alignment: Alignment.center,
@@ -440,30 +472,48 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   Widget messageTile(Size size, Map<String, dynamic> chatMap) {
     return Builder(builder: (_) {
       if (chatMap['type'] == "text") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          padding: EdgeInsets.only(
+            // top: 3,
+            left: 5,
+            right: 3,
+          ),
+          clipper: ChatBubbleClipper1(
+              type: chatMap['sendBy'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: chatMap['sendBy'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: Container(
-            constraints: BoxConstraints(
-              maxWidth: 200,
+            // constraints: BoxConstraints(
+            //   maxWidth: 200,
+            // ),
+            padding: EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 14,
             ),
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.red,
+            margin: EdgeInsets.symmetric(
+              vertical: 5,
+              horizontal: 8,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  chatMap['sendBy'],
+                  chatMap['sendByName'] != ""
+                      ? chatMap['sendByName']
+                      : "new user",
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
                 SizedBox(
@@ -474,7 +524,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               ],
@@ -482,20 +534,28 @@ class _GroupChatRoomState extends State<GroupChatRoom>
           ),
         );
       } else if (chatMap['type'] == "img") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () {},
             child: Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
-                  )),
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(
+                  color: Colors.black,
+                  width: 2,
+                ),
+              ),
               constraints: BoxConstraints(
                 maxWidth: 300,
               ),
@@ -505,25 +565,6 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                 borderRadius: BorderRadius.circular(20),
                 child: ClipRRect(
                   child: GestureDetector(
-                    // onDoubleTapDown: (details) => tabDownDetails = details,
-                    // onDoubleTap: () {
-                    //   final position = tabDownDetails.localPosition;
-
-                    //   final double scale = 3;
-                    //   final x = -position.dx * (scale - 1);
-                    //   final y = -position.dy * (scale - 1);
-                    //   final zoomed = Matrix4.identity()
-                    //     ..translate(x, y)
-                    //     ..scale(scale);
-
-                    //   final end = _tranformationController.value.isIdentity()
-                    //       ? zoomed
-                    //       : Matrix4.identity();
-                    //   _tranformationController.value = end;
-                    //   animation = Matrix4Tween(
-                    //           begin: _tranformationController.value, end: end)
-                    //       .animate(CurveTween(curve: Curves.easeOut)
-                    //           .animate(animationController));
                     onTap: () async {
                       final status = await Permission.storage.request();
                       if (status.isGranted) {
@@ -550,11 +591,10 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                       }
                     },
                     child: CachedNetworkImage(
+                      fit: BoxFit.cover,
                       imageUrl: chatMap['message'] ??
                           "https://img.icons8.com/cute-clipart/2x/user-male.png",
                       placeholder: (context, url) => Container(
-                        height: 30,
-                        width: 30,
                         child: Center(
                           child: Container(
                               height: 30,
@@ -562,7 +602,8 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                               child: CircularProgressIndicator()),
                         ),
                       ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          Image.asset("fonts/img_not_available.jpeg"),
                       // fit: BoxFit.cover,
                     ),
                   ),
@@ -572,11 +613,18 @@ class _GroupChatRoomState extends State<GroupChatRoom>
           ),
         );
       } else if (chatMap['type'] == "doc") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () async {
               final status = await Permission.storage.request();
@@ -604,15 +652,15 @@ class _GroupChatRoomState extends State<GroupChatRoom>
             },
             child: Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
-                  )),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.black,
+                  width: 2,
+                ),
+              ),
               constraints: BoxConstraints(
                 maxWidth: 300,
               ),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               height: size.height / 14,
               width: size.width / 1.7,
               child: Row(
@@ -638,11 +686,18 @@ class _GroupChatRoomState extends State<GroupChatRoom>
           ),
         );
       } else if (chatMap['type'] == "pdf") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser.displayName
+        return ChatBubble(
+          margin: EdgeInsets.only(top: 5),
+          clipper: ChatBubbleClipper1(
+              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
+          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              ? Colors.red
+              : Colors.white,
           child: GestureDetector(
             onTap: () async {
               final status = await Permission.storage.request();
@@ -678,8 +733,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
               constraints: BoxConstraints(
                 maxWidth: 300,
               ),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              height: size.height / 11,
+              height: size.height / 14,
               width: size.width / 1.7,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

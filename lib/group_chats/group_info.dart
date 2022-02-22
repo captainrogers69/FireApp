@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:flutter_riverpod/src/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/group_chats/edit_members.dart';
+import 'package:flutterwhatsapp/pages/chat_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
@@ -24,6 +27,7 @@ class _GroupInfoState extends State<GroupInfo> {
   List membersList = [];
   bool isLoading = true;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -152,6 +156,95 @@ class _GroupInfoState extends State<GroupInfo> {
                   itemCount: widget.groupMembers.length,
                   itemBuilder: (context, index) {
                     return ListTile(
+                      onTap: () async {
+                        final user = context.read(authControllerProvider);
+                        final userFromUsersCollection = await _firestore
+                            .collection('users')
+                            .doc(user.uid)
+                            .get();
+                        if (userFromUsersCollection.data()["isAdmin"]) {
+                          if (widget.groupMembers[index]['number'] !=
+                              _auth.currentUser.phoneNumber) {
+                            final checkExists = await _firestore
+                                .collection('chatroom')
+                                .where(
+                                  "sender",
+                                  isEqualTo: widget.groupMembers[index]
+                                      ['number'],
+                                )
+                                .where("reciever",
+                                    isEqualTo: _auth.currentUser.phoneNumber)
+                                .get();
+
+                            final checkExists2 = await _firestore
+                                .collection('chatroom')
+                                .where("reciever",
+                                    isEqualTo: widget.groupMembers[index]
+                                        ['name'])
+                                .where(
+                                  "sender",
+                                  isEqualTo: _auth.currentUser.phoneNumber,
+                                )
+                                .get();
+
+                            if (checkExists.docs.isNotEmpty) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ChatRoom(
+                                    chatRoomId: checkExists.docs[0].id,
+                                    chatRoomName: widget.groupMembers[index]
+                                        ['number'],
+                                    sender: _auth.currentUser.phoneNumber,
+                                    sendername: _auth.currentUser.displayName,
+                                    reciever: widget.groupMembers[index]
+                                        ['number'],
+                                    recieverName: widget.groupMembers[index]
+                                        ['name'],
+                                  ),
+                                ),
+                              );
+                            } else if (checkExists2.docs.isNotEmpty) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ChatRoom(
+                                    chatRoomId: checkExists2.docs[0].id,
+                                    chatRoomName: widget.groupMembers[index]
+                                        ['number'],
+                                    sender: _auth.currentUser.phoneNumber,
+                                    sendername: _auth.currentUser.displayName,
+                                    reciever: widget.groupMembers[index]
+                                        ['number'],
+                                    recieverName: widget.groupMembers[index]
+                                        ['name'],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              final roomId = Uuid().v1();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ChatRoom(
+                                    chatRoomId: roomId,
+                                    chatRoomName: widget.groupMembers[index]
+                                        ['number'],
+                                    sender: _auth.currentUser.phoneNumber,
+                                    sendername: _auth.currentUser.displayName,
+                                    reciever: widget.groupMembers[index]
+                                        ['number'],
+                                    recieverName: widget.groupMembers[index]
+                                        ['name'],
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "you stupid piece of shit");
+                          }
+                        } else {
+                          Fluttertoast.showToast(msg: "Not Authorised");
+                        }
+                      },
                       leading: Icon(
                         Icons.person,
                         color: Colors.red,
