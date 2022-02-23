@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/group_chats/group_chat_room.dart';
+import 'package:flutterwhatsapp/pages/chats_tab.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutterwhatsapp/general_providers.dart';
 
@@ -10,6 +11,15 @@ class GroupChatHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.red,
+        child: Icon(Icons.chat),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => Chats(),
+          ),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream:
             context.read(firestoreProvider).collection('groups').snapshots(),

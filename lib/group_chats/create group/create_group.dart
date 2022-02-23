@@ -17,6 +17,7 @@ class CreateGroup extends StatefulWidget {
 
 class _CreateGroupState extends State<CreateGroup> {
   final TextEditingController groupName = TextEditingController();
+  final TextEditingController groupDescription = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -28,14 +29,15 @@ class _CreateGroupState extends State<CreateGroup> {
     });
     // String groupId = Uuid().v1();
 
-    await _firestore
-        .collection("groups")
+    await _firestore.collection("groups")
         // .doc()
         // .collection('grouptag')
         .add({
-          // "id": groupId,
+      // "id": groupId,
       "groupname": groupName.text,
-      "grpdetail": " created by ${_auth.currentUser.displayName}",
+      "groupdescription": groupDescription.text,
+      "grpdetail":
+          " created by ${_auth.currentUser.displayName != "" ? _auth.currentUser.displayName : "unknown"}",
       "message": "${_auth.currentUser.displayName} Created This Group.",
       "type": "notification",
       "members": widget.membersList,
@@ -76,6 +78,8 @@ class _CreateGroupState extends State<CreateGroup> {
                     height: size.height / 14,
                     width: size.width / 1.15,
                     child: TextField(
+                      minLines: 2,
+                      maxLines: 3,
                       controller: groupName,
                       decoration: InputDecoration(
                         hintText: "Enter Group Name",
@@ -86,36 +90,59 @@ class _CreateGroupState extends State<CreateGroup> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: size.height / 50,
+                SizedBox(height: size.height / 50),
+                Expanded(
+                  child: Container(
+                    height: size.height / 14,
+                    width: size.width / 1.15,
+                    child: TextField(
+                      minLines: 1,
+                      maxLines: 3,
+                      controller: groupDescription,
+                      decoration: InputDecoration(
+                        hintText: "Enter Group Description",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.red),
-                  onPressed: createGroup,
-                  child: Text("Create Group"),
-                ),
+                // SizedBox(
+                //   height: size.height / 50,
+                // ),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(primary: Colors.red),
+                //   onPressed: createGroup,
+                //   child: Text("Create Group"),
+                // ),
               ],
             ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.red,
+        onPressed: createGroup,
+        child: Icon(Icons.create),
+      ),
     );
-  }}
+  }
+}
 
+// await _firestore
+//     .collection('groups')
+//     .doc(groupId)
+//     .collection('members')
+//     .add();
 
-    // await _firestore
-    //     .collection('groups')
-    //     .doc(groupId)
-    //     .collection('members')
-    //     .add();
+// for (int i = 0; i < widget.membersList.length; i++) {
+// String uid = widget.membersList[i]['uid'];
 
-    // for (int i = 0; i < widget.membersList.length; i++) {
-    // String uid = widget.membersList[i]['uid'];
-
-    // await _firestore
-    //     .collection('users')
-    //     .doc(uid)
-    //     .collection('groups')
-    //     .doc(groupId)
-    //     .update({
-    //   "grpname": _groupName.text,
-    //   "id": groupId,
-    // });
-    // }
+// await _firestore
+//     .collection('users')
+//     .doc(uid)
+//     .collection('groups')
+//     .doc(groupId)
+//     .update({
+//   "grpname": _groupName.text,
+//   "id": groupId,
+// });
+// }

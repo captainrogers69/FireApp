@@ -60,7 +60,9 @@ class UserScreen extends HookWidget {
               ),
             ),
             UserPageWidget(
-              text: authControllerState.displayName,
+              text: authControllerState.displayName != null
+                  ? "unknown"
+                  : authControllerState.displayName,
               actionWidget: IconButton(
                 icon: Icon(
                   Icons.edit,

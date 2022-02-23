@@ -40,6 +40,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ScrollController _scrolling = ScrollController();
   File imageFile;
   File docFile;
   String documentName;
@@ -112,7 +113,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .doc(docFilename)
         .set({
       "sendBy": _auth.currentUser.phoneNumber,
-      "sendByName": _auth.currentUser.displayName,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "message": "",
       "docname": "",
       "type": "doc",
@@ -159,7 +162,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .doc(pdfFilename)
         .set({
       "sendBy": _auth.currentUser.phoneNumber,
-      "sendByName": _auth.currentUser.displayName,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "message": "",
       "docname": "",
       "type": "pdf",
@@ -206,7 +211,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         .doc(fileName)
         .set({
       "sendBy": _auth.currentUser.phoneNumber,
-      "sendByName": _auth.currentUser.displayName,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "message": "",
       "docname": "",
       "type": "img",
@@ -282,6 +289,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Row(
@@ -313,153 +321,131 @@ class _GroupChatRoomState extends State<GroupChatRoom>
           ),
         ],
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
           child: Column(
             children: [
-              // Container(
-              //   padding: EdgeInsets.all(4),
-              //   height: 25,
-              //   child: Text(
-              //     message,
-              //   ),
-              // ),
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("fonts/background.png"),
-                    fit: BoxFit.fill,
+              SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("fonts/background.png"),
+                      fit: BoxFit.fill,
+                    ),
                   ),
-                ),
-                height: size.height / 1.25,
-                width: size.width,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore
-                      .collection('groups')
-                      .doc(widget.groupChatId)
-                      .collection('chats')
-                      .orderBy('time')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> chatMap =
-                              snapshot.data.docs[index].data()
-                                  as Map<String, dynamic>;
+                  height: size.height / 1.29,
+                  width: size.width,
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('groups')
+                        .doc(widget.groupChatId)
+                        .collection('chats')
+                        .orderBy('time')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                          controller: _scrolling,
+                          itemCount: snapshot.data.docs.length,
+                          itemBuilder: (context, index) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) =>
+                                {
+                                  _scrolling.jumpTo(
+                                      _scrolling.position.maxScrollExtent)
+                                });
+                            Map<String, dynamic> chatMap =
+                                snapshot.data.docs[index].data();
+                            // as Map<String, dynamic>;
+                            // Map<String, dynamic> map =
+                            // snapshot.data.docs[index].data();
 
-                          return messageTile(size, chatMap);
-                        },
-                      );
-                    } else {
-                      return Container(
-                        height: 50,
-                        width: 50,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-                  },
+                            return messageTile(size, chatMap);
+                          },
+                        );
+                      } else {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                // height: size.height / 12.2,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage("fonts/background.png"),
                     fit: BoxFit.fill,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (Colors.blueGrey[400]),
-                      offset: Offset(
-                        0,
-                        -3,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        // minLines: 1,
+                        maxLines: 2,
+                        keyboardType: TextInputType.multiline,
+                        controller: _message,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(25),
+                                  ),
+                                ),
+                                context: context,
+                                builder: (context) {
+                                  return documentShareWidget(context);
+                                },
+                              );
+                            },
+                            icon: Icon(
+                              Icons.attach_file,
+                              color: Colors.red,
+                            ),
+                          ),
+                          hintText: "Send Message",
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(
+                              color: Colors.redAccent, //0xffF14C37
+                              width: 2,
+                            ),
+                          ),
+                        ),
                       ),
-                      blurRadius: 10.0,
-                      spreadRadius: -5.0,
+                    ),
+                    SizedBox(width: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: onSendMessage,
+                      ),
                     ),
                   ],
-                ),
-                height: size.height / 10,
-                width: size.width,
-                alignment: Alignment.center,
-                child: Container(
-                  // margin: EdgeInsets.only(bottom: 10),
-                  height: size.height / 14,
-                  width: size.width / 1.1,
-                  child: Column(
-                    children: [
-                      // LinearProgressIndicator(
-                      //   backgroundColor: Colors.white,
-                      //   valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                      //   value: progress.toDouble(),
-                      //   minHeight: 2,
-                      // ),
-                      SizedBox(height: 2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: size.height / 15,
-                            width: size.width / 1.3,
-                            child: TextField(
-                              controller: _message,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(25),
-                                        ),
-                                      ),
-                                      context: context,
-                                      builder: (context) {
-                                        return documentShareWidget(context);
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.attach_file,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                hintText: "Send Message",
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 2,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(
-                                    color: Colors.redAccent, //0xffF14C37
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.send),
-                              onPressed: onSendMessage,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ],
@@ -499,10 +485,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
             ),
             margin: EdgeInsets.symmetric(
               vertical: 5,
-              horizontal: 8,
+              horizontal: 12,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  chatMap['sendBy'] == _auth.currentUser.phoneNumber
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
               children: [
                 Text(
                   chatMap['sendByName'] != ""
@@ -511,7 +500,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                    color: chatMap['sendBy'] == _auth.currentUser.phoneNumber
                         ? Colors.white
                         : Colors.black,
                   ),
@@ -524,7 +513,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: chatMap['sendby'] == _auth.currentUser.phoneNumber
+                    color: chatMap['sendBy'] == _auth.currentUser.phoneNumber
                         ? Colors.white
                         : Colors.black,
                   ),
@@ -537,13 +526,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              type: chatMap['sendBy'] == _auth.currentUser.phoneNumber
                   ? BubbleType.sendBubble
                   : BubbleType.receiverBubble),
           alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+          backGroundColor: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -616,13 +605,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              type: chatMap['sendBy'] == _auth.currentUser.phoneNumber
                   ? BubbleType.sendBubble
                   : BubbleType.receiverBubble),
           alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+          backGroundColor: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -689,13 +678,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: chatMap['sendby'] == _auth.currentUser.phoneNumber
+              type: chatMap['sendBy'] == _auth.currentUser.phoneNumber
                   ? BubbleType.sendBubble
                   : BubbleType.receiverBubble),
           alignment: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          backGroundColor: chatMap['sendby'] == _auth.currentUser.phoneNumber
+          backGroundColor: chatMap['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -780,14 +769,22 @@ class _GroupChatRoomState extends State<GroupChatRoom>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getDoc(),
-                    icon: Icon(
-                      Icons.file_copy_rounded,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getDoc(),
+                        icon: Icon(
+                          Icons.file_copy_rounded,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -796,14 +793,22 @@ class _GroupChatRoomState extends State<GroupChatRoom>
               ),
               SizedBox(width: 10),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getPDF(),
-                    icon: Icon(
-                      Icons.picture_as_pdf,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getPDF(),
+                        icon: Icon(
+                          Icons.picture_as_pdf,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -812,18 +817,26 @@ class _GroupChatRoomState extends State<GroupChatRoom>
               ),
               SizedBox(width: 10),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getImage(),
-                    icon: Icon(
-                      Icons.image,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getImage(),
+                        icon: Icon(
+                          Icons.image,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
-                  Text("Image")
+                  Text("Gallery")
                 ],
               ),
             ],
