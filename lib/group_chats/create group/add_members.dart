@@ -41,7 +41,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
   void onResultTap() {
     setState(() {
       membersList.add({
-        "name": userMap['name'],
+        "name": userMap['name'] != "" ? userMap['name'] : "unknown",
         "number": userMap['number'],
         "uid": userMap['uid'],
         // "isAdmin": userMap['isAdmin'],
@@ -63,7 +63,9 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
   void initState() {
     setState(() {
       membersList.add({
-        "name": _auth.currentUser.displayName,
+        "name": _auth.currentUser.displayName != ""
+            ? _auth.currentUser.displayName
+            : "unknown",
         "number": _auth.currentUser.phoneNumber,
         "uid": _auth.currentUser.uid,
         // "isAdmin": userMap['isAdmin'],

@@ -44,6 +44,7 @@ class _ChatRoomState extends State<ChatRoom> {
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ScrollController _scrolling = ScrollController();
   File imageFile;
   File docFile;
   String documentName;
@@ -151,7 +152,10 @@ class _ChatRoomState extends State<ChatRoom> {
         .collection('chats')
         .doc(docFilename)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "message": "",
       "docname": "",
       "type": "doc",
@@ -197,7 +201,10 @@ class _ChatRoomState extends State<ChatRoom> {
         .collection('chats')
         .doc(pdfFilename)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "message": "",
       "docname": "",
       "type": "pdf",
@@ -242,7 +249,10 @@ class _ChatRoomState extends State<ChatRoom> {
         .collection('chats')
         .doc(fileName)
         .set({
-      "sendby": _auth.currentUser.displayName,
+      "sendBy": _auth.currentUser.phoneNumber,
+      "sendByName": _auth.currentUser.displayName != ""
+          ? _auth.currentUser.displayName
+          : "unknown",
       "docname": "",
       "message": "",
       "type": "img",
@@ -292,76 +302,67 @@ class _ChatRoomState extends State<ChatRoom> {
               ? widget.reciever
               : widget.sender),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("fonts/background.png"),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                height: MediaQuery.of(context).size.height / 1.25,
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(bottom: 5),
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore
-                      .collection('chatroom')
-                      .doc(widget.chatRoomId)
-                      .collection('chats')
-                      .orderBy("time", descending: false)
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                          itemCount: snapshot.data.docs.length,
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> map =
-                                snapshot.data.docs[index].data();
-                            return messages(size, map);
-                          });
-                    } else {
-                      return Container();
-                    }
-                    //else
-                  },
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("fonts/background.png"),
-                    fit: BoxFit.fill,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (Colors.blueGrey[400]),
-                      offset: Offset(
-                        0,
-                        -3,
-                      ),
-                      blurRadius: 10.0,
-                      spreadRadius: -5.0,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("fonts/background.png"),
+                      fit: BoxFit.fill,
                     ),
-                  ],
+                  ),
+                  height: MediaQuery.of(context).size.height / 1.29,
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('chatroom')
+                        .doc(widget.chatRoomId)
+                        .collection('chats')
+                        .orderBy("time", descending: false)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                            controller: _scrolling,
+                            itemCount: snapshot.data.docs.length,
+                            itemBuilder: (context, index) {
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) => {
+                                        _scrolling.jumpTo(
+                                            _scrolling.position.maxScrollExtent)
+                                      });
+                              Map<String, dynamic> map =
+                                  snapshot.data.docs[index].data();
+                              return messages(size, map);
+                            });
+                      } else {
+                        return Container();
+                      }
+                      //else
+                    },
+                  ),
                 ),
-                height: size.height / 10,
-                width: size.width,
-                alignment: Alignment.center,
-                child: Container(
-                  height: size.height / 12,
-                  width: size.width / 1.1,
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("fonts/background.png"),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  // height: size.height / 10,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
-                        // height: size.height / 11,
-                        // width: size.width / 1.3,
                         child: TextFormField(
-                          minLines: 2,
-                          maxLines: 4,
+                          maxLines: 2,
                           keyboardType: TextInputType.multiline,
                           controller: _message,
                           decoration: InputDecoration(
@@ -416,8 +417,8 @@ class _ChatRoomState extends State<ChatRoom> {
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ));
   }
@@ -440,8 +441,8 @@ class _ChatRoomState extends State<ChatRoom> {
               ? Alignment.centerRight
               : Alignment.centerLeft,
           backGroundColor: map['sendBy'] == _auth.currentUser.phoneNumber
-              ? Colors.white
-              : Colors.red,
+              ? Colors.red
+              : Colors.white,
           child: Container(
             padding: EdgeInsets.symmetric(
               vertical: 10,
@@ -455,7 +456,6 @@ class _ChatRoomState extends State<ChatRoom> {
               onLongPress: () {
                 Clipboard.setData(ClipboardData(text: map['message']));
                 Fluttertoast.showToast(msg: "Text Copied to Clipboard");
-                print(_auth.currentUser.phoneNumber);
               },
               child: Linkify(
                 text: map['message'],
@@ -465,7 +465,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: map['sendby'] == _auth.currentUser.phoneNumber
+                  color: map['sendBy'] == _auth.currentUser.phoneNumber
                       ? Colors.white
                       : Colors.black,
                 ),
@@ -477,13 +477,13 @@ class _ChatRoomState extends State<ChatRoom> {
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: map['sendby'] == _auth.currentUser.phoneNumber
-                  ? BubbleType.receiverBubble
-                  : BubbleType.sendBubble),
-          alignment: map['sendby'] == _auth.currentUser.phoneNumber
-              ? Alignment.centerLeft
-              : Alignment.centerRight,
-          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+              type: map['sendBy'] == _auth.currentUser.phoneNumber
+                  ? BubbleType.sendBubble
+                  : BubbleType.receiverBubble),
+          alignment: map['sendBy'] == _auth.currentUser.phoneNumber
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          backGroundColor: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -554,13 +554,13 @@ class _ChatRoomState extends State<ChatRoom> {
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: map['sendby'] == _auth.currentUser.phoneNumber
+              type: map['sendBy'] == _auth.currentUser.phoneNumber
                   ? BubbleType.sendBubble
                   : BubbleType.receiverBubble),
-          alignment: map['sendby'] == _auth.currentUser.phoneNumber
+          alignment: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+          backGroundColor: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -626,13 +626,13 @@ class _ChatRoomState extends State<ChatRoom> {
         return ChatBubble(
           margin: EdgeInsets.only(top: 5),
           clipper: ChatBubbleClipper1(
-              type: map['sendby'] == _auth.currentUser.phoneNumber
+              type: map['sendBy'] == _auth.currentUser.phoneNumber
                   ? BubbleType.sendBubble
                   : BubbleType.receiverBubble),
-          alignment: map['sendby'] == _auth.currentUser.phoneNumber
+          alignment: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          backGroundColor: map['sendby'] == _auth.currentUser.phoneNumber
+          backGroundColor: map['sendBy'] == _auth.currentUser.phoneNumber
               ? Colors.red
               : Colors.white,
           child: GestureDetector(
@@ -713,18 +713,27 @@ class _ChatRoomState extends State<ChatRoom> {
           Icon(
             Icons.drag_handle,
           ),
+          Text("Share Files"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getDoc(),
-                    icon: Icon(
-                      Icons.file_copy_rounded,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getDoc(),
+                        icon: Icon(
+                          Icons.file_copy_rounded,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -733,14 +742,22 @@ class _ChatRoomState extends State<ChatRoom> {
               ),
               SizedBox(width: 10),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getPDF(),
-                    icon: Icon(
-                      Icons.picture_as_pdf,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getPDF(),
+                        icon: Icon(
+                          Icons.picture_as_pdf,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -749,18 +766,26 @@ class _ChatRoomState extends State<ChatRoom> {
               ),
               SizedBox(width: 10),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => getImage(),
-                    icon: Icon(
-                      Icons.image,
-                      size: 55,
-                      color: Colors.redAccent,
+                  CircleAvatar(
+                    backgroundColor: Colors.red[100],
+                    radius: 37,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () => getImage(),
+                        icon: Icon(
+                          Icons.image,
+                          // size: 55,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 10),
-                  Text("Image")
+                  Text("Gallery")
                 ],
               ),
             ],
@@ -793,271 +818,3 @@ class ShowImageSingle extends StatelessWidget {
     );
   }
 }
-
-// import 'dart:io';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:uuid/uuid.dart';
-
-// class ChatScreen extends StatelessWidget {
-//   final Map<String, dynamic> userMap;
-//   final String chatRoomId;
-
-//   ChatScreen({required this.chatRoomId, required this.userMap,});
-
-//   final TextEditingController _message = TextEditingController();
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-//   File? imageFile;
-
-//   Future getImage() async {
-//     ImagePicker _picker = ImagePicker();
-
-//     await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-//       if (xFile != null) {
-//         imageFile = File(xFile.path);
-//         uploadImage();
-//       }
-//     });
-//   }
-
-//   Future uploadImage() async {
-//     String fileName = Uuid().v1();
-//     int status = 1;
-
-//     await _firestore
-//         .collection('chatroom')
-//         .doc(chatRoomId)
-//         .collection('chats')
-//         .doc(fileName)
-//         .set({
-//       "sendby": _auth.currentUser!.displayName,
-//       "message": "",
-//       "type": "img",
-//       "time": FieldValue.serverTimestamp(),
-//     });
-
-//     var ref =
-//         FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
-
-//     var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
-//       await _firestore
-//           .collection('chatroom')
-//           .doc(chatRoomId)
-//           .collection('chats')
-//           .doc(fileName)
-//           .delete();
-
-//       status = 0;
-//     });
-
-//     if (status == 1) {
-//       String imageUrl = await uploadTask.ref.getDownloadURL();
-
-//       await _firestore
-//           .collection('chatroom')
-//           .doc(chatRoomId)
-//           .collection('chats')
-//           .doc(fileName)
-//           .update({"message": imageUrl});
-
-//       print(imageUrl);
-//     }
-//   }
-
-//   void onSendMessage() async {
-//     if (_message.text.isNotEmpty) {
-//       Map<String, dynamic> messages = {
-//         "sendby": _auth.currentUser!.displayName,
-//         "message": _message.text,
-//         "type": "text",
-//         "time": FieldValue.serverTimestamp(),
-//       };
-
-//       _message.clear();
-//       await _firestore
-//           .collection('chatroom')
-//           .doc(chatRoomId)
-//           .collection('chats')
-//           .add(messages);
-//     } else {
-//       print("Enter Some Text");
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final size = MediaQuery.of(context).size;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: StreamBuilder<DocumentSnapshot>(
-//           stream:
-//               _firestore.collection("users").doc(userMap['uid']).snapshots(),
-//           builder: (context, snapshot) {
-//             if (snapshot.data != null) {
-//               return Container(
-//                 child: Column(
-//                   children: [
-//                     Text(userMap['name']),
-//                     Text(
-//                       snapshot.data!['status'],
-//                       style: TextStyle(fontSize: 14),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             } else {
-//               return Container();
-//             }
-//           },
-//         ),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               height: size.height / 1.25,
-//               width: size.width,
-//               child: StreamBuilder<QuerySnapshot>(
-//                 stream: _firestore
-//                     .collection('chatroom')
-//                     .doc(chatRoomId)
-//                     .collection('chats')
-//                     .orderBy("time", descending: false)
-//                     .snapshots(),
-//                 builder: (BuildContext context,
-//                     AsyncSnapshot<QuerySnapshot> snapshot) {
-//                   if (snapshot.data != null) {
-//                     return ListView.builder(
-//                       itemCount: snapshot.data!.docs.length,
-//                       itemBuilder: (context, index) {
-//                         Map<String, dynamic> map = snapshot.data!.docs[index]
-//                             .data() as Map<String, dynamic>;
-//                         return messages(size, map, context);
-//                       },
-//                     );
-//                   } else {
-//                     return Container();
-//                   }
-//                 },
-//               ),
-//             ),
-//             Container(
-//               height: size.height / 10,
-//               width: size.width,
-//               alignment: Alignment.center,
-//               child: Container(
-//                 height: size.height / 12,
-//                 width: size.width / 1.1,
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Container(
-//                       height: size.height / 17,
-//                       width: size.width / 1.3,
-//                       child: TextField(
-//                         controller: _message,
-//                         decoration: InputDecoration(
-//                             suffixIcon: IconButton(
-//                               onPressed: () => getImage(),
-//                               icon: Icon(Icons.photo),
-//                             ),
-//                             hintText: "Send Message",
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(8),
-//                             )),
-//                       ),
-//                     ),
-//                     IconButton(
-//                         icon: Icon(Icons.send), onPressed: onSendMessage),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
-//     return map['type'] == "text"
-//         ? Container(
-//             width: size.width,
-//             alignment: map['sendby'] == _auth.currentUser!.displayName
-//                 ? Alignment.centerRight
-//                 : Alignment.centerLeft,
-//             child: Container(
-//               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-//               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-//               decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(15),
-//                 color: Colors.blue,
-//               ),
-//               child: Text(
-//                 map['message'],
-//                 style: TextStyle(
-//                   fontSize: 16,
-//                   fontWeight: FontWeight.w500,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//             ),
-//           )
-//         : Container(
-//             height: size.height / 2.5,
-//             width: size.width,
-//             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-//             alignment: map['sendby'] == _auth.currentUser!.displayName
-//                 ? Alignment.centerRight
-//                 : Alignment.centerLeft,
-//             child: InkWell(
-//               onTap: () => Navigator.of(context).push(
-//                 MaterialPageRoute(
-//                   builder: (_) => ShowImage(
-//                     imageUrl: map['message'],
-//                   ),
-//                 ),
-//               ),
-//               child: Container(
-//                 height: size.height / 2.5,
-//                 width: size.width / 2,
-//                 decoration: BoxDecoration(border: Border.all()),
-//                 alignment: map['message'] != "" ? null : Alignment.center,
-//                 child: map['message'] != ""
-//                     ? Image.network(
-//                         map['message'],
-//                         fit: BoxFit.cover,
-//                       )
-//                     : CircularProgressIndicator(),
-//               ),
-//             ),
-//           );
-//   }
-// }
-
-// class ShowImage extends StatelessWidget {
-//   final String imageUrl;
-
-//   const ShowImage({required this.imageUrl, Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final Size size = MediaQuery.of(context).size;
-
-//     return Scaffold(
-//       body: Container(
-//         height: size.height,
-//         width: size.width,
-//         color: Colors.black,
-//         child: Image.network(imageUrl),
-//       ),
-//     );
-//   }
-// }

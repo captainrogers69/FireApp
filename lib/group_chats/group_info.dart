@@ -87,6 +87,7 @@ class _GroupInfoState extends State<GroupInfo> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
+              padding: EdgeInsets.only(top: 10),
               height: size.height / 8,
               width: size.width / 1.1,
               child: Row(
