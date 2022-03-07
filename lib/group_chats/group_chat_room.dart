@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,13 +43,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   File docFile;
   String documentName;
   File pdfFile;
-  int progress = 0;
-  ReceivePort _receivePort = ReceivePort();
+  // int progress = 0;
+  // ReceivePort _receivePort = ReceivePort();
 
-  static downloadingCallback(id, status, progress) {
-    SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
-    sendPort.send([id, status, progress]);
-  }
+  // static downloadingCallback(id, status, progress) {
+  //   SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
+  //   sendPort.send([id, status, progress]);
+  // }
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -270,19 +268,19 @@ class _GroupChatRoomState extends State<GroupChatRoom>
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
 
-    IsolateNameServer.registerPortWithName(
-        _receivePort.sendPort, "downloading");
-    _receivePort.listen((message) {
-      setState(() {
-        progress = message[2];
-      });
-    });
-    FlutterDownloader.registerCallback((downloadingCallback));
-  }
+  //   IsolateNameServer.registerPortWithName(
+  //       _receivePort.sendPort, "downloading");
+  //   _receivePort.listen((message) {
+  //     setState(() {
+  //       progress = message[2];
+  //     });
+  //   });
+  //   FlutterDownloader.registerCallback((downloadingCallback));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -321,34 +319,33 @@ class _GroupChatRoomState extends State<GroupChatRoom>
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              SingleChildScrollView(
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("fonts/background.png"),
-                      fit: BoxFit.fill,
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("fonts/background.png"),
+                    fit: BoxFit.fill,
                   ),
-                  height: size.height / 1.29,
-                  width: size.width,
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _firestore
-                        .collection('groups')
-                        .doc(widget.groupChatId)
-                        .collection('chats')
-                        .orderBy('time')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return ListView.builder(
+                ),
+                height: size.height / 1.29,
+                width: size.width,
+                padding: EdgeInsets.only(bottom: 5),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('groups')
+                      .doc(widget.groupChatId)
+                      .collection('chats')
+                      .orderBy('time')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
                           controller: _scrolling,
                           itemCount: snapshot.data.docs.length,
                           itemBuilder: (context, index) {
@@ -357,26 +354,14 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                                   _scrolling.jumpTo(
                                       _scrolling.position.maxScrollExtent)
                                 });
-                            Map<String, dynamic> chatMap =
+                            Map<String, dynamic> map =
                                 snapshot.data.docs[index].data();
-                            // as Map<String, dynamic>;
-                            // Map<String, dynamic> map =
-                            // snapshot.data.docs[index].data();
-
-                            return messageTile(size, chatMap);
-                          },
-                        );
-                      } else {
-                        return Container(
-                          height: 50,
-                          width: 50,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                            return messageTile(size, map);
+                          });
+                    } else {
+                      return Container();
+                    }
+                  },
                 ),
               ),
               Container(

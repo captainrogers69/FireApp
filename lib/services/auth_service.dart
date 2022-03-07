@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -56,6 +57,8 @@ class AuthenticationService implements BaseAuthenticationService {
                 .get();
             Fluttertoast.showToast(msg: "Login Succesful");
 
+            final token = await FirebaseMessaging.instance.getToken();
+
             if (userInCollection.docs.isEmpty) {
               await _read(firestoreProvider)
                   .collection('users')
@@ -64,8 +67,10 @@ class AuthenticationService implements BaseAuthenticationService {
                 "number": "+" + countryCode + phone,
                 "name": "unknown",
                 "status": "offline",
+                "token": token,
                 "isAdmin": false,
               });
+              print(token);
               Navigator.pop(context);
             } else {
               Fluttertoast.showToast(msg: "Login Succesful");
@@ -214,6 +219,8 @@ class OtpDialogue extends HookWidget {
                   .get();
 
               if (userInCollection.docs.isEmpty) {
+                final token = await FirebaseMessaging.instance.getToken();
+
                 await context
                     .read(firestoreProvider)
                     .collection('users')
@@ -222,8 +229,10 @@ class OtpDialogue extends HookWidget {
                   "name": "unknown",
                   "number": "+" + countryCode + phoneNumber,
                   "status": "offline",
+                  "token": token,
                   "isAdmin": false,
                 });
+                print(token);
                 Navigator.pop(context);
               } else {
                 Fluttertoast.showToast(msg: "Login Succesful");

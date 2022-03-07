@@ -61,6 +61,15 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
       initialIndex: 0,
       length: 3,
     );
+
+    void tokenFromDevice() async {
+      final token = await FirebaseMessaging.instance.getToken();
+
+      print(token);
+    }
+
+    tokenFromDevice();
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
