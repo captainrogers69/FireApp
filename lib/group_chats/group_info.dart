@@ -132,11 +132,10 @@ class _GroupInfoState extends State<GroupInfo> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 10,
-              // size.height / 20,
-            ),
-            //Add Members
+            SizedBox(height: 10
+                // size.height / 20,
+                ),
+
             ListTile(
               onTap: addingmemberstogrouprules,
               leading: Icon(
@@ -157,6 +156,35 @@ class _GroupInfoState extends State<GroupInfo> {
                   itemCount: widget.groupMembers.length,
                   itemBuilder: (context, index) {
                     return ListTile(
+                      onLongPress: () async {
+                        final user = context.read(authControllerProvider);
+                        final userFromUsersCollection = await _firestore
+                            .collection('users')
+                            .doc(user.uid)
+                            .get();
+
+                        if (userFromUsersCollection.data()["isAdmin"]) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return SimpleDialog(
+                                children: [
+                                  ListTile(
+                                    leading: CircleAvatar(
+                                        backgroundImage:
+                                            AssetImage("fonts/appiconkk.png")),
+                                    title: Text(
+                                        widget.groupMembers[index]['number']),
+                                    subtitle: Text(
+                                        widget.groupMembers[index]['name']),
+                                    // trailing: Icon(Icons.edit),
+                                  )
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
                       onTap: () async {
                         final user = context.read(authControllerProvider);
                         final userFromUsersCollection = await _firestore
@@ -238,21 +266,18 @@ class _GroupInfoState extends State<GroupInfo> {
                                 ),
                               );
                             }
-                          } else {
-                            Fluttertoast.showToast(
-                                msg: "you stupid piece of shit");
                           }
                         } else {
                           Fluttertoast.showToast(msg: "Not Authorised");
                         }
                       },
-                      leading: Icon(
-                        Icons.person,
-                        color: Colors.red,
+                      leading: CircleAvatar(
+                        backgroundImage: AssetImage("fonts/appiconkk.png"),
                       ),
-                      title: Text(
-                        widget.groupMembers[index]['name'],
-                      ),
+                      title: Text(widget.groupMembers[index]['number'] ==
+                              _auth.currentUser.phoneNumber
+                          ? "Me"
+                          : widget.groupMembers[index]['name']),
                       // subtitle: Text(
                       //   widget.groupMembers[index]['isAdmin'],
                       // ),

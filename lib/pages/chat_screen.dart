@@ -57,6 +57,7 @@ class _ChatRoomState extends State<ChatRoom> {
         "sendByName": _auth.currentUser.displayName != ""
             ? _auth.currentUser.displayName
             : "unknown",
+        "recievedBy": widget.reciever,
         "type": "text",
         "message": _message.text,
         "time": FieldValue.serverTimestamp()
