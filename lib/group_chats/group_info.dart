@@ -221,8 +221,6 @@ class _GroupInfoState extends State<GroupInfo> {
                                 MaterialPageRoute(
                                   builder: (_) => ChatRoom(
                                     chatRoomId: checkExists.docs[0].id,
-                                    chatRoomName: widget.groupMembers[index]
-                                        ['number'],
                                     sender: _auth.currentUser.phoneNumber,
                                     sendername: _auth.currentUser.displayName,
                                     reciever: widget.groupMembers[index]
@@ -237,8 +235,6 @@ class _GroupInfoState extends State<GroupInfo> {
                                 MaterialPageRoute(
                                   builder: (_) => ChatRoom(
                                     chatRoomId: checkExists2.docs[0].id,
-                                    chatRoomName: widget.groupMembers[index]
-                                        ['number'],
                                     sender: _auth.currentUser.phoneNumber,
                                     sendername: _auth.currentUser.displayName,
                                     reciever: widget.groupMembers[index]
@@ -254,8 +250,6 @@ class _GroupInfoState extends State<GroupInfo> {
                                 MaterialPageRoute(
                                   builder: (_) => ChatRoom(
                                     chatRoomId: roomId,
-                                    chatRoomName: widget.groupMembers[index]
-                                        ['number'],
                                     sender: _auth.currentUser.phoneNumber,
                                     sendername: _auth.currentUser.displayName,
                                     reciever: widget.groupMembers[index]
@@ -266,6 +260,8 @@ class _GroupInfoState extends State<GroupInfo> {
                                 ),
                               );
                             }
+                          } else {
+                            return null;
                           }
                         } else {
                           Fluttertoast.showToast(msg: "Not Authorised");

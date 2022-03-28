@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
@@ -14,6 +15,7 @@ class ChatToAdmin extends StatefulWidget {
 
 class _ChatToAdminState extends State<ChatToAdmin> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   List adminList = [];
 
   Future adminListFromFirebase() async {
@@ -78,14 +80,12 @@ class _ChatToAdminState extends State<ChatToAdmin> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatRoom(
-                        chatRoomName:
-                            checkExists.docs[0].data()['chatRoomName'],
                         sendername: checkExists.docs[0].data()['senderName'],
                         recieverName:
                             checkExists.docs[0].data()['recieverName'],
                         chatRoomId: checkExists.docs[0].id,
                         sender: checkExists.docs[0].data()['sender'],
-                        reciever: checkExists.docs[0].data()['senderName'],
+                        reciever: checkExists.docs[0].data()['reciever'],
                       ),
                     ),
                   );
@@ -94,14 +94,12 @@ class _ChatToAdminState extends State<ChatToAdmin> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatRoom(
-                        chatRoomName:
-                            checkExists2.docs[0].data()['chatRoomName'],
                         sendername: checkExists2.docs[0].data()['senderName'],
                         recieverName:
                             checkExists2.docs[0].data()['recieverName'],
                         chatRoomId: checkExists2.docs[0].id,
                         sender: checkExists2.docs[0].data()['sender'],
-                        reciever: checkExists2.docs[0].data()['senderName'],
+                        reciever: checkExists2.docs[0].data()['reciever'],
                       ),
                     ),
                   );
@@ -110,8 +108,9 @@ class _ChatToAdminState extends State<ChatToAdmin> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatRoom(
-                        chatRoomName: data['number'],
-                        sendername: user.displayName,
+                        sendername: _auth.currentUser.displayName == null
+                            ? "unknown"
+                            : _auth.currentUser.displayName,
                         recieverName: data["name"],
                         chatRoomId: chatRoomIdGenerated,
                         sender: user.phoneNumber,

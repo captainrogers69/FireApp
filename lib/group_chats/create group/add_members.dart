@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutterwhatsapp/group_chats/create%20group/create_group.dart';
 
 class AddMembersinNewGroup extends StatefulWidget {
-  const AddMembersinNewGroup({Key key}) : super(key: key);
+  final String myToken;
+  const AddMembersinNewGroup({Key key, @required this.myToken})
+      : super(key: key);
 
   @override
   State<AddMembersinNewGroup> createState() => _AddMembersinNewGroupState();
@@ -17,6 +19,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
   List<Map<String, dynamic>> membersList = [];
   bool isLoading = false;
   Map<String, dynamic> userMap;
+  // String thisUserFromFS = "";
 
   void onSearch() async {
     setState(() {
@@ -43,8 +46,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
       membersList.add({
         "name": userMap['name'] != "" ? userMap['name'] : "unknown",
         "number": userMap['number'],
-        "uid": userMap['uid'],
-        // "isAdmin": userMap['isAdmin'],
+        "token": userMap['token'],
       });
 
       userMap = null;
@@ -59,6 +61,8 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
     }
   }
 
+  // void thisUser() async {}
+
   @override
   void initState() {
     setState(() {
@@ -68,7 +72,7 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
             : "unknown",
         "number": _auth.currentUser.phoneNumber,
         "uid": _auth.currentUser.uid,
-        // "isAdmin": userMap['isAdmin'],
+        "token": widget.myToken,
       });
 
       userMap = null;

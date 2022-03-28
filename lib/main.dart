@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -42,8 +43,9 @@ Future<void> main() async {
   await FlutterDownloader.initialize(debug: true);
 
   runApp(
-    ProviderScope(
-      child: MyApp(),
+    DevicePreview(
+      enabled: false,
+      builder: (context) => ProviderScope(child: MyApp()),
     ),
   );
 }
@@ -52,6 +54,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       // theme: theme ? AppTheme.darkTheme : AppTheme.lightTheme,
       theme: ThemeData(primaryColor: Colors.red),
       debugShowCheckedModeBanner: false,

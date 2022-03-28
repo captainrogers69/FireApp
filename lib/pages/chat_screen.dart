@@ -21,7 +21,6 @@ import 'package:uuid/uuid.dart';
 
 class ChatRoom extends StatefulWidget {
   final String chatRoomId;
-  final String chatRoomName;
   final String sender;
   final String sendername;
   final String reciever;
@@ -29,7 +28,6 @@ class ChatRoom extends StatefulWidget {
 
   ChatRoom({
     this.chatRoomId,
-    this.chatRoomName,
     this.sender,
     this.sendername,
     this.reciever,
@@ -63,26 +61,21 @@ class _ChatRoomState extends State<ChatRoom> {
         "time": FieldValue.serverTimestamp()
       };
 
-      ////wrap in if condition for doc exists
-      // final chatExists = await _firestore
-      //     .collection('chatrooom')
-      //     .where("chatRoomName", isEqualTo: widget.chatRoomName)
-      //     .get();
+      final checkingAddress =
+          await _firestore.collection('chatroom').doc(widget.chatRoomId).get();
 
-      // final chatExists2 = await _firestore
-      //     .collection('chatroom')
-      //     .where("chatRoomAddress", isEqualTo: widget.chatRoomName)
-      //     .get();
-
-      // if (chatExists.docs.isNotEmpty || chatExists2.docs.isNotEmpty) {
+      // if (!checkingAddress.data().containsKey("sender")) {
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
-        "chatRoomName": widget.chatRoomName,
-        "chatRoomAddress": _auth.currentUser.phoneNumber,
+        "chatRoomId": widget.chatRoomId,
         "sender": widget.sender,
         "senderName": widget.sendername != "" ? widget.sendername : "unknown",
         "reciever": widget.reciever,
-        "recieverName": widget.recieverName,
+        "recieverName":
+            widget.recieverName != "" ? widget.recieverName : "unknown",
       });
+      // } else {
+      //   return null;
+      // }
 
       await _firestore
           .collection('chatroom')
@@ -91,6 +84,8 @@ class _ChatRoomState extends State<ChatRoom> {
           .add(messages);
 
       _message.clear();
+      _scrolling.animateTo(_scrolling.initialScrollOffset,
+          duration: Duration(milliseconds: 700), curve: Curves.ease);
     } else {
       print("Enter Some Text");
       Fluttertoast.showToast(msg: "Enter Some Text");
@@ -325,20 +320,16 @@ class _ChatRoomState extends State<ChatRoom> {
                         .collection('chatroom')
                         .doc(widget.chatRoomId)
                         .collection('chats')
-                        .orderBy("time", descending: false)
+                        .orderBy("time", descending: true)
                         .snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasData) {
                         return ListView.builder(
+                            reverse: true,
                             controller: _scrolling,
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (context, index) {
-                              WidgetsBinding.instance.addPostFrameCallback(
-                                  (_) => {
-                                        _scrolling.jumpTo(
-                                            _scrolling.position.maxScrollExtent)
-                                      });
                               Map<String, dynamic> map =
                                   snapshot.data.docs[index].data();
                               return messages(size, map);

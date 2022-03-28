@@ -29,9 +29,9 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
     final userFromUsersCollection =
         await _firestore.collection('users').doc(user.uid).get();
     if (userFromUsersCollection.data()["isAdmin"]) {
-      // onSearch();
       Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => AddMembersinNewGroup(),
+        builder: (_) => AddMembersinNewGroup(
+            myToken: userFromUsersCollection.data()["token"]),
       ));
     } else {
       Fluttertoast.showToast(msg: "Only Admin can Perform this Action");
@@ -62,13 +62,13 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
       length: 3,
     );
 
-    void tokenFromDevice() async {
-      final token = await FirebaseMessaging.instance.getToken();
+    // void tokenFromDevice() async {
+    //   final token = await FirebaseMessaging.instance.getToken();
 
-      print(token);
-    }
+    //   print(token);
+    // }
 
-    tokenFromDevice();
+    // tokenFromDevice();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;

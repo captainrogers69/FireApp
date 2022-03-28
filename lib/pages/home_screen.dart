@@ -30,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await _firestore
           .collection('users')
-          // .where("isAdmin", isNotEqualTo: true)
           .where("number", isEqualTo: _search.text)
           .get()
           .then((value) {
@@ -151,10 +150,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => ChatRoom(
                                         chatRoomId: checkExists.docs[0].id,
-                                        chatRoomName: userMap['number'],
                                         sender: _auth.currentUser.phoneNumber,
                                         sendername:
-                                            _auth.currentUser.displayName,
+                                            _auth.currentUser.displayName ==
+                                                    null
+                                                ? "unknown"
+                                                : _auth.currentUser.displayName,
                                         reciever: userMap['number'],
                                         recieverName: userMap['name'],
                                       ),
@@ -165,10 +166,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => ChatRoom(
                                         chatRoomId: checkExists2.docs[0].id,
-                                        chatRoomName: userMap['number'],
                                         sender: _auth.currentUser.phoneNumber,
                                         sendername:
-                                            _auth.currentUser.displayName,
+                                            _auth.currentUser.displayName ==
+                                                    null
+                                                ? "unknown"
+                                                : _auth.currentUser.displayName,
                                         reciever: userMap['number'],
                                         recieverName: userMap['name'],
                                       ),
@@ -180,10 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => ChatRoom(
                                         chatRoomId: roomId,
-                                        chatRoomName: userMap['number'],
                                         sender: _auth.currentUser.phoneNumber,
                                         sendername:
-                                            _auth.currentUser.displayName,
+                                            _auth.currentUser.displayName ==
+                                                    null
+                                                ? "unknown"
+                                                : _auth.currentUser.displayName,
                                         reciever: userMap['number'],
                                         recieverName: userMap['name'],
                                       ),

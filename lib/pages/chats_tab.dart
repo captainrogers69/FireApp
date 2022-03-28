@@ -121,7 +121,6 @@ class _ChatsState extends State<Chats> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => ChatRoom(
-                                chatRoomName: chatRoom['chatRoomName'],
                                 chatRoomId: chatRoom.id,
                                 sender: chatRoom["sender"],
                                 sendername: chatRoom["senderName"],
@@ -130,21 +129,6 @@ class _ChatsState extends State<Chats> {
                               ),
                             ),
                           );
-
-                          // String roomId = chatRoomId(
-                          //   _auth.currentUser.phoneNumber,
-                          //   // userMap['number'],
-                          // );
-
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //     builder: (_) => ChatRoom(
-                          //       chatRoomId: roomId,
-                          //       sender: _auth.currentUser.phoneNumber,
-                          //       // reciever: userMap['name'],
-                          //     ),
-                          //   ),
-                          // );
                         },
                         leading: CircleAvatar(
                           backgroundColor: Colors.red,

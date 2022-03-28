@@ -57,9 +57,8 @@ class AuthenticationService implements BaseAuthenticationService {
                 .get();
             Fluttertoast.showToast(msg: "Login Succesful");
 
-            final token = await FirebaseMessaging.instance.getToken();
-
             if (userInCollection.docs.isEmpty) {
+              final token = await FirebaseMessaging.instance.getToken();
               await _read(firestoreProvider)
                   .collection('users')
                   .doc(user.uid)
@@ -70,7 +69,7 @@ class AuthenticationService implements BaseAuthenticationService {
                 "token": token,
                 "isAdmin": false,
               });
-              print(token);
+              print(token + "😍😍");
               Navigator.pop(context);
             } else {
               Fluttertoast.showToast(msg: "Login Succesful");
@@ -232,7 +231,7 @@ class OtpDialogue extends HookWidget {
                   "token": token,
                   "isAdmin": false,
                 });
-                print(token);
+                print(token + "😂😂");
                 Navigator.pop(context);
               } else {
                 Fluttertoast.showToast(msg: "Login Succesful");
