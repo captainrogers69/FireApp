@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:name="${applicationName}"
-        android:label="Kiyakonnect"
+        android:label="KiyaLearningHub"
         android:icon="@mipmap/ic_launcher">
         
 

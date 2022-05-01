@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutterwhatsapp/controllers/size_config.dart';
 import 'package:flutterwhatsapp/pages/intl_phone.dart';
 import 'package:flutterwhatsapp/services/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -178,6 +179,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    SizeConfig().init(context);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -212,13 +214,17 @@ class _LoginPageState extends State<LoginPage> {
                         child: Center(
                           child: Row(
                             children: [
-                              Image.asset("fonts/chaticon.png"),
+                              Image.asset(
+                                "fonts/chaticon.png",
+                                height: getProportionateScreenHeight(50),
+                                width: getProportionateScreenWidth(50),
+                              ),
                               SizedBox(width: 10),
                               Text(
                                 "KiyaKonnect",
                                 style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 25,
+                                    fontSize: getFontSize(22),
                                     fontFamily: 'Montserrat',
                                     fontWeight: FontWeight.bold),
                               ),

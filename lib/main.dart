@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutterwhatsapp/controllers/auth_controller.dart';
 import 'package:flutterwhatsapp/pages/login.dart';
+import 'package:flutterwhatsapp/splash_page.dart';
 import 'package:flutterwhatsapp/whatsapp_home.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -60,7 +61,7 @@ class MyApp extends StatelessWidget {
       // theme: theme ? AppTheme.darkTheme : AppTheme.lightTheme,
       theme: ThemeData(primaryColor: Colors.red),
       debugShowCheckedModeBanner: false,
-      home: AuthChecker(),
+      home: SplashPage(),
     );
   }
 }

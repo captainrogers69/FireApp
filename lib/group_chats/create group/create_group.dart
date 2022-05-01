@@ -17,7 +17,7 @@ class CreateGroup extends StatefulWidget {
 
 class _CreateGroupState extends State<CreateGroup> {
   final TextEditingController groupName = TextEditingController();
-  final TextEditingController groupDescription = TextEditingController();
+  // final TextEditingController groupDescription = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,9 +35,8 @@ class _CreateGroupState extends State<CreateGroup> {
         .add({
       // "id": groupId,
       "groupname": groupName.text,
-      "groupdescription": groupDescription.text,
       "grpdetail":
-          " created by ${_auth.currentUser.displayName != "" ? _auth.currentUser.displayName : "unknown"}",
+          " created by ${_auth.currentUser.displayName != "" ? _auth.currentUser.displayName : _auth.currentUser.displayName != null ? "unknown" : "unknown"}",
       "message": "${_auth.currentUser.displayName} Created This Group.",
       "type": "notification",
       "members": widget.membersList,
@@ -90,24 +89,24 @@ class _CreateGroupState extends State<CreateGroup> {
                     ),
                   ),
                 ),
-                SizedBox(height: size.height / 50),
-                Expanded(
-                  child: Container(
-                    height: size.height / 14,
-                    width: size.width / 1.15,
-                    child: TextField(
-                      minLines: 1,
-                      maxLines: 3,
-                      controller: groupDescription,
-                      decoration: InputDecoration(
-                        hintText: "Enter Group Description",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                // SizedBox(height: size.height / 50),
+                // Expanded(
+                //   child: Container(
+                //     height: size.height / 14,
+                //     width: size.width / 1.15,
+                //     child: TextField(
+                //       minLines: 1,
+                //       maxLines: 3,
+                //       controller: groupDescription,
+                //       decoration: InputDecoration(
+                //         hintText: "Enter Group Description",
+                //         border: OutlineInputBorder(
+                //           borderRadius: BorderRadius.circular(10),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 // SizedBox(
                 //   height: size.height / 50,
                 // ),

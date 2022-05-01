@@ -263,9 +263,10 @@ class _GroupInfoState extends State<GroupInfo> {
                           } else {
                             return null;
                           }
-                        } else {
-                          Fluttertoast.showToast(msg: "Not Authorised");
                         }
+                        // else {
+                        //   Fluttertoast.showToast(msg: "Only Administrators");
+                        // }
                       },
                       leading: CircleAvatar(
                         backgroundImage: AssetImage("fonts/appiconkk.png"),

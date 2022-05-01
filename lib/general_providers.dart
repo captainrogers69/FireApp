@@ -18,7 +18,7 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
 // });
 
 final firebaseStorageProvider = Provider<FirebaseStorage>((ref) =>
-    FirebaseStorage.instanceFor(bucket: "gs://chatspro-364e3.appspot.com"));
+    FirebaseStorage.instanceFor(bucket: "gs://kiyakonnect.appspot.com"));
 
 final imagePickerProvider = Provider<ImagePicker>((ref) => ImagePicker());
 

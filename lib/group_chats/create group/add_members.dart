@@ -69,7 +69,9 @@ class _AddMembersinNewGroupState extends State<AddMembersinNewGroup> {
       membersList.add({
         "name": _auth.currentUser.displayName != ""
             ? _auth.currentUser.displayName
-            : "unknown",
+            : _auth.currentUser.displayName != null
+                ? "unknown"
+                : "unknown",
         "number": _auth.currentUser.phoneNumber,
         "uid": _auth.currentUser.uid,
         "token": widget.myToken,

@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "757557642381",
-    "project_id": "chatspro-364e3",
-    "storage_bucket": "chatspro-364e3.appspot.com"
+    "project_number": "429628779074",
+    "project_id": "kiyakonnect",
+    "storage_bucket": "kiyakonnect.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:757557642381:android:373720464c4bac214a8ec4",
+        "mobilesdk_app_id": "1:429628779074:android:8dd471fc5c9e37c22f1bdb",
         "android_client_info": {
-          "package_name": "com.rogers.kiyakonnect"
+          "package_name": "com.rogers.kiyalearninghub"
         }
       },
       "oauth_client": [
         {
-          "client_id": "757557642381-qc0jk15rlkkeptscua75cadri4gvmh86.apps.googleusercontent.com",
+          "client_id": "429628779074-m7uida0bml6ns7nq78h46s38jg4q8i56.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.rogers.kiyakonnect",
+            "package_name": "com.rogers.kiyalearninghub",
             "certificate_hash": "49fa3ca1955705cbc17f22dba2c0ecfc4b3164ce"
           }
         },
         {
-          "client_id": "757557642381-k28rbssqjr88p2l197fdcohnq65m04ts.apps.googleusercontent.com",
+          "client_id": "429628779074-gh8eukk89de1v87jd0ut34n84uoiu5f4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB9lWGzoz5RqeqU1TgXO_7FDwRITmhYLAk"
+          "current_key": "AIzaSyBNAdaXNx4gdFWaLWNtgnp_lPvC0DHuVl0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "757557642381-k28rbssqjr88p2l197fdcohnq65m04ts.apps.googleusercontent.com",
+              "client_id": "429628779074-gh8eukk89de1v87jd0ut34n84uoiu5f4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

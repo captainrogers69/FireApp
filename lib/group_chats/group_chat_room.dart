@@ -1,13 +1,18 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'package:flutterwhatsapp/group_chats/group_info.dart';
@@ -15,6 +20,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -43,13 +49,13 @@ class _GroupChatRoomState extends State<GroupChatRoom>
   File docFile;
   String documentName;
   File pdfFile;
-  // int progress = 0;
-  // ReceivePort _receivePort = ReceivePort();
+  int progress = 0;
+  ReceivePort _receivePort = ReceivePort();
 
-  // static downloadingCallback(id, status, progress) {
-  //   SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
-  //   sendPort.send([id, status, progress]);
-  // }
+  static downloadingCallback(id, status, progress) {
+    SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
+    sendPort.send([id, status, progress]);
+  }
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -113,7 +119,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
       "sendBy": _auth.currentUser.phoneNumber,
       "sendByName": _auth.currentUser.displayName != ""
           ? _auth.currentUser.displayName
-          : "unknown",
+          : _auth.currentUser.displayName != null
+              ? "unknown"
+              : "unknown",
       "message": "",
       "docname": "",
       "type": "doc",
@@ -162,7 +170,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
       "sendBy": _auth.currentUser.phoneNumber,
       "sendByName": _auth.currentUser.displayName != ""
           ? _auth.currentUser.displayName
-          : "unknown",
+          : _auth.currentUser.displayName != null
+              ? "unknown"
+              : "unknown",
       "message": "",
       "docname": "",
       "type": "pdf",
@@ -211,7 +221,9 @@ class _GroupChatRoomState extends State<GroupChatRoom>
       "sendBy": _auth.currentUser.phoneNumber,
       "sendByName": _auth.currentUser.displayName != ""
           ? _auth.currentUser.displayName
-          : "unknown",
+          : _auth.currentUser.displayName != null
+              ? "unknown"
+              : "unknown",
       "message": "",
       "docname": "",
       "type": "img",
@@ -252,13 +264,17 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         "sendBy": _auth.currentUser.phoneNumber,
         "sendByName": _auth.currentUser.displayName != ""
             ? _auth.currentUser.displayName
-            : "unknown",
+            : _auth.currentUser.displayName != null
+                ? "unknown"
+                : "unknown",
         "message": _message.text,
         "type": "text",
         "time": FieldValue.serverTimestamp(),
       };
 
       _message.clear();
+      _scrolling.animateTo(_scrolling.initialScrollOffset,
+          duration: Duration(milliseconds: 700), curve: Curves.ease);
 
       await _firestore
           .collection('groups')
@@ -268,19 +284,22 @@ class _GroupChatRoomState extends State<GroupChatRoom>
     }
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  FocusNode _focus = FocusNode();
+  bool emojiShowing = false;
 
-  //   IsolateNameServer.registerPortWithName(
-  //       _receivePort.sendPort, "downloading");
-  //   _receivePort.listen((message) {
-  //     setState(() {
-  //       progress = message[2];
-  //     });
-  //   });
-  //   FlutterDownloader.registerCallback((downloadingCallback));
-  // }
+  @override
+  void initState() {
+    super.initState();
+
+    IsolateNameServer.registerPortWithName(
+        _receivePort.sendPort, "downloading");
+    _receivePort.listen((message) {
+      setState(() {
+        progress = message[2];
+      });
+    });
+    FlutterDownloader.registerCallback((downloadingCallback));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,17 +342,17 @@ class _GroupChatRoomState extends State<GroupChatRoom>
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage("fonts/background.png"),
                     fit: BoxFit.fill,
                   ),
                 ),
-                height: size.height / 1.29,
+                // height: size.height / 1.29,
                 width: size.width,
                 padding: EdgeInsets.only(bottom: 5),
                 child: StreamBuilder<QuerySnapshot>(
@@ -341,19 +360,17 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                       .collection('groups')
                       .doc(widget.groupChatId)
                       .collection('chats')
-                      .orderBy('time')
+                      .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return ListView.builder(
+                          reverse: true,
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
                           controller: _scrolling,
                           itemCount: snapshot.data.docs.length,
                           itemBuilder: (context, index) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) =>
-                                {
-                                  _scrolling.jumpTo(
-                                      _scrolling.position.maxScrollExtent)
-                                });
                             Map<String, dynamic> map =
                                 snapshot.data.docs[index].data();
                             return messageTile(size, map);
@@ -364,80 +381,140 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                   },
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                // height: size.height / 12.2,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("fonts/background.png"),
-                    fit: BoxFit.fill,
-                  ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              // height: size.height / 12.2,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("fonts/background.png"),
+                  fit: BoxFit.fill,
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        // minLines: 1,
-                        maxLines: 2,
-                        keyboardType: TextInputType.multiline,
-                        controller: _message,
-                        decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(25),
-                                  ),
-                                ),
-                                context: context,
-                                builder: (context) {
-                                  return documentShareWidget(context);
-                                },
-                              );
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      // minLines: 1,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      controller: _message,
+                      decoration: InputDecoration(
+                        prefixIcon: InkWell(
+                            onTap: () {
+                              setState(() {
+                                // emojiShowing = !emojiShowing;
+                                emojiShowing = !emojiShowing;
+                                if (emojiShowing) {
+                                  FocusScope.of(context).unfocus();
+                                }
+                              });
                             },
-                            icon: Icon(
-                              Icons.attach_file,
-                              color: Colors.red,
-                            ),
+                            child: Icon(Icons.emoji_emotions,
+                                color: Colors.redAccent)),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(25),
+                                ),
+                              ),
+                              context: context,
+                              builder: (context) {
+                                return documentShareWidget(context);
+                              },
+                            );
+                          },
+                          icon: Icon(
+                            Icons.attach_file,
+                            color: Colors.red,
                           ),
-                          hintText: "Send Message",
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
+                        ),
+                        hintText: "Send Message",
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 2,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: Colors.redAccent, //0xffF14C37
-                              width: 2,
-                            ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.redAccent, //0xffF14C37
+                            width: 2,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 5),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: onSendMessage,
-                      ),
+                  ),
+                  SizedBox(width: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                  ],
-                ),
+                    child: IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: onSendMessage,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Offstage(
+              offstage: !emojiShowing,
+              child: SizedBox(
+                height: 250,
+                child: EmojiPicker(
+                    onEmojiSelected: (Category category, Emoji emoji) {
+                      onEmojiSelected(emoji);
+                    },
+                    onBackspacePressed: onBackspacePressed,
+                    config: Config(
+                        columns: 7,
+                        emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                        verticalSpacing: 0,
+                        horizontalSpacing: 0,
+                        initCategory: Category.RECENT,
+                        bgColor: Theme.of(context).scaffoldBackgroundColor,
+                        indicatorColor: Colors.redAccent,
+                        iconColor: Colors.grey,
+                        iconColorSelected: Colors.redAccent,
+                        progressIndicatorColor: Colors.redAccent,
+                        backspaceColor: Colors.redAccent,
+                        skinToneDialogBgColor: Colors.white,
+                        skinToneIndicatorColor: Colors.grey,
+                        enableSkinTones: true,
+                        showRecentsTab: true,
+                        recentsLimit: 28,
+                        noRecentsText: 'No Recents',
+                        noRecentsStyle: const TextStyle(
+                            fontSize: 20, color: Colors.black26),
+                        tabIndicatorAnimDuration: kTabScrollDuration,
+                        categoryIcons: const CategoryIcons(),
+                        buttonMode: ButtonMode.MATERIAL)),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  onEmojiSelected(Emoji emoji) {
+    _message
+      ..text += emoji.emoji
+      ..selection = TextSelection.fromPosition(
+          TextPosition(offset: _message.text.length));
+  }
+
+  onBackspacePressed() {
+    _message
+      ..text = _message.text.characters.skipLast(1).toString()
+      ..selection = TextSelection.fromPosition(
+          TextPosition(offset: _message.text.length));
   }
 
   Widget messageTile(Size size, Map<String, dynamic> chatMap) {
@@ -479,9 +556,11 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                       : CrossAxisAlignment.start,
               children: [
                 Text(
-                  chatMap['sendByName'] != ""
-                      ? chatMap['sendByName']
-                      : "new user",
+                  chatMap['sendBy'] == _auth.currentUser.phoneNumber
+                      ? "Me"
+                      : chatMap['sendByName'] != ""
+                          ? chatMap['sendByName']
+                          : "new user",
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -493,14 +572,36 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                 SizedBox(
                   height: size.height / 200,
                 ),
-                Text(
-                  chatMap['message'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: chatMap['sendBy'] == _auth.currentUser.phoneNumber
-                        ? Colors.white
-                        : Colors.black,
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: chatMap['message']));
+                    Fluttertoast.showToast(msg: "Text Copied to Clipboard");
+                  },
+                  child: Linkify(
+                    text: chatMap['message'],
+                    linkStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            chatMap['sendBy'] == _auth.currentUser.phoneNumber
+                                ? Colors.white
+                                : Colors.black),
+                    onOpen: (link) async {
+                      if (await canLaunch(link.url)) {
+                        await launch(link.url);
+                      } else {
+                        throw Fluttertoast.showToast(
+                            msg: 'Could not launch $link');
+                      }
+                      // launch('${chatMap['message']}');
+                    },
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: chatMap['sendBy'] == _auth.currentUser.phoneNumber
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
                 ),
               ],
@@ -530,9 +631,7 @@ class _GroupChatRoomState extends State<GroupChatRoom>
                   width: 2,
                 ),
               ),
-              constraints: BoxConstraints(
-                maxWidth: 300,
-              ),
+              constraints: BoxConstraints(maxWidth: 300),
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               height: size.height / 2.5,
               child: ClipRRect(
